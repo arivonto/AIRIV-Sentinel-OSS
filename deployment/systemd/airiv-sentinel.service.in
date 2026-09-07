@@ -1,0 +1,22 @@
+[Unit]
+Description=AIRIV Sentinel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=@SERVICE_USER@
+Group=@SERVICE_GROUP@
+WorkingDirectory=@REPO_ROOT@
+ExecStart=@PYTHON_EXECUTABLE@ -m sentinel
+Restart=on-failure
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=30
+StandardOutput=journal
+StandardError=journal
+Environment=PYTHONUNBUFFERED=1
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

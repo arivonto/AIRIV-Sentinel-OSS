@@ -1,0 +1,48 @@
+# AIRIV Sentinel local/runtime state
+
+# Keep explicit examples
+!.env.example
+
+# Editor/system
+.DS_Store
+.idea/
+.vscode/
+*~
+*.orig
+*.rej
+
+# Python/tooling
+*.py[cod]
+__pycache__/
+.coverage
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+build/
+dist/
+htmlcov/
+
+# Local secrets/configuration
+.env
+.env.*
+*.key
+*.pem
+credentials.json
+secrets.json
+id_ed25519
+id_rsa
+
+# Runtime/evidence state — never source controlled
+*.log
+*.pid
+logs/
+var/
+
+# Development scratch / backup files — Git history is the backup
+*.bak
+*.bak.*
+*.bak_*
+*.identity_backup.*
+*.pre_*

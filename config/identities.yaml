@@ -1,0 +1,29 @@
+# AIRIV Sentinel — Explicit Tmux Identity Mapping
+#
+# Identity resolution is configuration-driven.
+# The Tmux parser MUST NOT infer agent identity from commands.
+
+session: airiv
+
+identities:
+
+  chatgpt:
+    windows:
+      - chatgpt
+      - si_engineer
+
+  gemini:
+    windows:
+      - gemini
+      - ti_engineer
+
+  airiv_system:
+    windows:
+      - airiv
+      - server
+      - worker
+
+  system_terminal:
+    windows:
+      - terminal
+      - system

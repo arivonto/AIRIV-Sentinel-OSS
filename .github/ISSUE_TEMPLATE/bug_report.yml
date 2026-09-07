@@ -1,0 +1,55 @@
+name: Bug report
+description: Report a reproducible AIRIV Sentinel defect
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a defect. **Do not include secrets or security vulnerabilities here.** Follow SECURITY.md for security-sensitive reports.
+  - type: input
+    id: version
+    attributes:
+      label: Commit or release
+      description: Exact commit SHA or release/tag where the problem occurs.
+      placeholder: e.g. abc1234 or v0.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What happened, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Minimal safe reproduction steps. Do not perform or request uncontrolled production effects.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Relevant sanitized logs, test output, or incident evidence.
+  - type: dropdown
+    id: effect
+    attributes:
+      label: Did a real host or production effect occur?
+      options:
+        - No
+        - Yes
+        - Unknown
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed credentials, tokens, private keys, and confidential host data.
+          required: true
+        - label: This is not a vulnerability report that belongs under SECURITY.md.
+          required: true

@@ -1,0 +1,100 @@
+name: AIRIV Sentinel CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - main
+      - engineering/**
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Sentinel validation (Python 3.14)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Public release security and hygiene scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/public_release_secret_scan.sh
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+
+      - name: Prepare host-compatible Python path
+        run: |
+          mkdir -p venv/bin
+          ln -sf "$(command -v python)" venv/bin/python
+          test -x venv/bin/python
+
+      - name: Check patch hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git diff --check "${{ github.event.pull_request.base.sha }}" "${{ github.sha }}"
+          elif git rev-parse HEAD^ >/dev/null 2>&1; then
+            git diff --check HEAD^ HEAD
+          else
+            git diff --check
+          fi
+
+      - name: Compile Sentinel and tests
+        env:
+          PYTHONPATH: .
+        run: |
+          python -m compileall -q sentinel tests
+
+      - name: Run production Commander boundary regression
+        env:
+          PYTHONPATH: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t focused < <(
+            find tests -maxdepth 1 -type f \
+              \( \
+                -name 'test_systemd_commander_integration*.py' -o \
+                -name 'test_systemd_production_commander*.py' -o \
+                -name 'test_systemd_production_activation_runtime*.py' -o \
+                -name 'test_systemd_production_runtime_delegation*.py' -o \
+                -name 'test_systemd_production_execution_delegation*.py' -o \
+                -name 'test_systemd_production_explicit_runtime*.py' \
+              \) \
+              -print | sort
+          )
+
+          if (( ${#focused[@]} == 0 )); then
+            echo 'FAIL: no production Commander boundary tests discovered'
+            exit 1
+          fi
+
+          printf 'Focused tests (%d):\n' "${#focused[@]}"
+          printf ' - %s\n' "${focused[@]}"
+          python -m pytest -q -p no:cacheprovider "${focused[@]}"
+
+      - name: Run full regression
+        env:
+          PYTHONPATH: .
+        run: |
+          python -m pytest -q -p no:cacheprovider
