@@ -29,8 +29,19 @@ htmlcov/
 .env.*
 *.key
 *.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.token
+*.secret
 credentials.json
 secrets.json
+auth.json
+service-account*.json
+.netrc
+.npmrc
+kubeconfig
 id_ed25519
 id_rsa
 

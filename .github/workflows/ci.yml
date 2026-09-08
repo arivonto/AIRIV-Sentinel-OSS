@@ -59,6 +59,11 @@ jobs:
             git diff --check
           fi
 
+      - name: Validate project documentation and disclosure boundary
+        run: |
+          python -m py_compile scripts/validate_project_docs.py
+          python scripts/validate_project_docs.py
+
       - name: Compile Sentinel and tests
         env:
           PYTHONPATH: .
