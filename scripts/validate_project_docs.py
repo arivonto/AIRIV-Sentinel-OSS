@@ -43,7 +43,8 @@ class StrictHTML(HTMLParser):
         self.ids: set[str] = set()
         self.hrefs: list[str] = []
 
-    def _attrs(self, attrs: list[tuple[str, str | None]]) -> dict[str, str]:
+    @staticmethod
+    def _attrs(attrs: list[tuple[str, str | None]]) -> dict[str, str]:
         return {key: value or "" for key, value in attrs}
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
@@ -107,12 +108,10 @@ def validate_html(text: str) -> None:
     parser = StrictHTML()
     parser.feed(text)
     parser.close()
-
-    required_ids = {"top", "snapshot", "evolution", "architecture", "specs", "install", "security", "roadmap"}
+    required_ids = {"top", "snapshot", "domains", "evolution", "architecture", "specs", "install", "security", "roadmap"}
     missing_ids = sorted(required_ids - parser.ids)
     if missing_ids:
         fail("index.html missing required section id(s): " + ", ".join(missing_ids))
-
     for href in parser.hrefs:
         if href.startswith("#"):
             anchor = href[1:]
@@ -132,27 +131,25 @@ def validate_disclosure_surface(path: Path, text: str) -> None:
 def main() -> int:
     if not README.is_file():
         fail("README.md missing")
+    if not INDEX.is_file():
+        fail("index.html missing")
     readme = README.read_text(encoding="utf-8")
+    index = INDEX.read_text(encoding="utf-8")
     for phrase in REQUIRED_PHRASES:
         if phrase not in readme:
             fail(f"README.md missing lock phrase: {phrase}")
+    for phrase in REQUIRED_PHRASES[:2]:
+        if phrase not in index:
+            fail(f"index.html missing lock phrase: {phrase}")
     validate_markdown_links(readme)
+    validate_html(index)
     validate_disclosure_surface(README, readme)
-
-    public_snapshot = "Clean open-source distribution." in readme
-    if INDEX.exists():
-        index = INDEX.read_text(encoding="utf-8")
-        for phrase in REQUIRED_PHRASES[:2]:
-            if phrase not in index:
-                fail(f"index.html missing lock phrase: {phrase}")
-        validate_html(index)
-        validate_disclosure_surface(INDEX, index)
-    elif not public_snapshot:
-        fail("index.html missing from canonical project tree")
-
+    validate_disclosure_surface(INDEX, index)
+    if "Clean open-source distribution." in readme and "Curated public domain:" not in index:
+        fail("public index.html missing curated-public notice")
     print("PROJECT_DOCS_README_LINKS=PASS")
     print("PROJECT_DOCS_DISCLOSURE_GUARD=PASS")
-    print("PROJECT_DOCS_HTML=PASS" if INDEX.exists() else "PROJECT_DOCS_HTML=NOT_APPLICABLE_PUBLIC_SNAPSHOT")
+    print("PROJECT_DOCS_HTML=PASS")
     print("PROJECT_DOCS_VALIDATION=PASS")
     return 0
 
