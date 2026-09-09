@@ -2,8 +2,8 @@
 
 > **Status:** ACTIVE / CHANGE-CONTROLLED
 > **Roadmap baseline:** AIRIV Sentinel Project Lock — 2026-09-09
-> **Canonical repository:** `AIRIV-Sentinel` — Private / canonical source
-> **Public distribution:** `AIRIV-Sentinel-OSS` — Public / curated open-source distribution
+> **Canonical repository:** `AIRIV-Sentinel` — private canonical source
+> **Public distribution:** `AIRIV-Sentinel-OSS` — curated open-source distribution
 
 ## Purpose
 
@@ -22,15 +22,15 @@ Every roadmap slice MUST preserve:
 - `RemediationPolicy` as sole canonical remediation ALLOW/DENY authority;
 - `ExecutionBoundary` as sole command-execution boundary;
 - independent verification for consequential effects;
-- `IncidentManager.resolve()` as sole terminal lifecycle mutation boundary;
-- durable evidence, execution identity, replay protection, and terminal `UNKNOWN` semantics where side effects are possible;
+- `IncidentManager.resolve()` as sole terminal incident lifecycle mutation boundary;
+- durable evidence, execution identity, replay protection and terminal `UNKNOWN` semantics where side effects are possible;
 - no blind retry of indeterminate effects;
 - AI output as untrusted execution/intelligence output, never semantic authority;
-- Sentinel remaining external to AIRIV Server, Event Bus, Job Worker, API, database authority, and business-domain authority;
+- Sentinel remaining external to AIRIV Server, Event Bus, Job Worker, API, database authority and business-domain authority;
 - private canonical source + curated public distribution topology;
 - production host effects separated from ordinary CI;
 - reporting/delivery surfaces remaining non-authoritative;
-- external delivery remaining disabled until transport-specific configuration and live proof are explicitly approved.
+- network delivery and live AI providers remaining disabled until explicitly reviewed.
 
 ## Delivery model
 
@@ -46,26 +46,13 @@ Locked requirement
 -> curated OSS promotion
 ```
 
-A feature is not complete merely because code exists. Completion requires acceptance evidence and preservation of authority boundaries.
+A capability is complete only when implementation, fail-closed tests, acceptance evidence and authority boundaries agree.
 
 ---
 
 ## Foundation Lock — COMPLETE
 
-Completed foundation:
-
-- Autonomous Commander mission locked.
-- V1 architecture frozen/change-controlled.
-- centralized incident lifecycle and final-outcome separation;
-- deny-by-default remediation policy;
-- exact execution and independent verification;
-- durable execution identity/replay/terminal uncertain-outcome semantics;
-- 24/7 systemd runtime;
-- Gate 3 controlled production proof PASSED / LOCKED;
-- Gate 4 bounded production autonomy established;
-- trusted-host/CI privilege separation;
-- private canonical + curated public repository topology;
-- synchronized project-lock documentation and disclosure validation.
+Completed: Autonomous Commander mission, frozen/change-controlled V1 architecture, centralized incident lifecycle, deny-by-default remediation policy, exact execution, independent verification, durable execution identity/replay semantics, 24/7 systemd runtime, Gate 3 controlled production proof, Gate 4 bounded autonomy, trusted-host/CI privilege separation and private-canonical/curated-public topology.
 
 **Exit:** COMPLETE.
 
@@ -73,133 +60,99 @@ Completed foundation:
 
 ## Operational Evidence & Commander UX — CORE COMPLETE
 
-Completed vertical slices:
+Completed slices include durable incident reports, atomic integrity envelopes, idempotent append-retentive reconciliation, bounded runtime reconciliation, unattended rollups, chronological Commander Attention Queue and exact-field disclosure-safe delivery projection.
 
-- read-only `IncidentReportBuilder` for active and terminal state;
-- Commander-readable Markdown + immutable structured report;
-- stable evidence timeline and classification;
-- explicit Commander-attention derivation from canonical facts;
-- malformed evidence rejection;
-- runtime read-only report access;
-- durable `IncidentReportStore` with atomic persistence and SHA-256 integrity envelope;
-- strict identity/path validation and corrupt-state fail-closed behavior;
-- idempotent `IncidentReportRecorder` reconciliation;
-- append-retentive report persistence;
-- immediate first runtime reconciliation and maximum one sync per 60 seconds afterward;
-- nonfatal but visible reporting failures;
-- `UnattendedIncidentRollup` and chronological `CommanderAttentionQueue`;
-- timezone-aware start-inclusive/end-exclusive windows;
-- exact-field `CommanderDeliveryProjection` disclosure allowlist;
-- unreviewed schema drift rejected before transport projection.
-
-Verified state at closeout:
-
-- **225** focused production Commander-boundary tests PASS;
-- **2,154** full canonical regression tests PASS;
-- **2,138** full curated public regression tests PASS after public promotion;
-- security/history, patch hygiene, docs/disclosure, compile, curated build and public-main CI PASS.
-
-**Exit:** CORE COMPLETE. Durable unattended evidence can be summarized for Commander attention without becoming an authority-bearing subsystem.
+**Exit:** CORE COMPLETE. Operational evidence can be summarized for Commander attention without becoming an authority-bearing subsystem.
 
 ---
 
 ## Commander Delivery Transport Foundation — COMPLETE
 
-Completed vertical slices:
+Completed slices include explicit transport protocol, disabled production default, durable delivery identity, projection/destination/transport bound-effect continuity, replay suppression, `SUCCEEDED / FAILED / UNKNOWN`, exception sanitization, metadata-only ledger and deterministic non-network local-file dry-run. Daemon execution does not auto-send.
 
-- explicit `CommanderDeliveryTransport` protocol;
-- disabled/no-send production default;
-- durable delivery identity ledger;
-- projection digest + destination + transport bound-effect continuity;
-- replay suppression;
-- terminal `SUCCEEDED`, `FAILED`, and `UNKNOWN` semantics;
-- no blind retry of terminal failure/uncertain outcome;
-- exception sanitization: type recorded, raw exception message not persisted;
-- delivery ledger excludes subject, body, raw incident evidence, and credentials;
-- `CommanderDeliveryOrchestrator` consumes only `CommanderDeliveryProjection`;
-- deterministic local file dry-run transport;
-- dry-run artifact atomic/no-overwrite semantics;
-- explicit `SentinelRuntime.deliver_commander_brief()`;
-- daemon `run_once()` proven not to auto-send.
-
-Verified state:
-
-- canonical full regression: **2,154 PASS**;
-- curated public full regression: **2,138 PASS**;
-- focused production Commander-boundary regression: **225 PASS**;
-- canonical main CI/Public Distribution PASS;
-- curated OSS sync branch and actual public `main` CI PASS.
-
-**Exit:** COMPLETE. A Commander brief can traverse the full delivery orchestration path using a non-network transport with durable identity, replay protection, fail-closed bound-effect continuity, and observable terminal semantics. No external recipient is contacted by this milestone.
+**Exit:** COMPLETE. End-to-end delivery orchestration is proven without contacting an external recipient.
 
 ---
 
-## External Commander Delivery Adapter — DECISION-GATED
+## External Commander Delivery Adapter — DECISION-GATED / DISABLED
 
-This is deliberately separate from the completed transport foundation.
+Before email, webhook, chat or another network adapter can be enabled, explicitly define and review:
 
-Before email, webhook, chat, or another network adapter can be enabled, the following must be explicitly defined and reviewed:
-
-- exact delivery channel;
-- exact destination/recipient identity;
+- exact channel and recipient/destination;
 - credential source and rotation boundary;
-- outbound network boundary;
-- retry/backoff limits;
-- provider acknowledgement semantics;
-- mapping of timeout/ambiguous acknowledgement to terminal `UNKNOWN`;
-- privacy/disclosure policy for projected content;
-- rate limits and duplicate suppression;
+- outbound-network boundary;
+- timeout, retry/backoff and rate limits;
+- provider acknowledgement and ambiguous-ack semantics;
+- mapping of uncertainty to terminal `UNKNOWN`;
+- privacy/disclosure policy;
+- duplicate suppression;
 - controlled live proof and independent verification;
-- explicit unattended-enable decision.
+- unattended-enable decision.
 
-No default network transport is permitted. Source deployment alone must never activate external delivery.
-
-**Status:** DECISION-GATED / DISABLED.
+No default network transport is permitted.
 
 ---
 
-## Verified AI Agent Operations — ACTIVE
+## Verified AI Agent Operations — PROVIDER-NEUTRAL FOUNDATION CORE COMPLETE
 
-Governing contract: `contracts/AIRIV_SENTINEL_AI_AGENT_EXECUTION_CONTRACT_V1.md` — LOCKED.
+Governing contract: `contracts/AIRIV_SENTINEL_AI_AGENT_EXECUTION_CONTRACT_V1.md` — **LOCKED**.
 
-### Objective
+### Completed slices
 
-Make AI-agent execution operationally useful while preserving Sentinel as the authority-bearing orchestrator and keeping providers replaceable.
+- single canonical provider-neutral `AgentExecutionBoundary`;
+- explicit immutable request/agent/task/operation/execution-context/authority-context identity;
+- immutable raw result with terminal status validation;
+- disabled adapter and deny-all verifier as fail-closed defaults;
+- independent result-verification boundary;
+- append-oriented AI execution evidence;
+- sanitized provider/verifier exception handling;
+- legacy AI executor consolidated as a compatibility facade to the canonical boundary;
+- durable execution identity states `CLAIMED / RUNNING / SUCCEEDED / FAILED / UNKNOWN`;
+- deterministic full-request SHA-256 binding and exact replay continuity;
+- replay suppression, including incomplete attempt -> terminal `UNKNOWN` without automatic re-execution;
+- metadata-only durable identity ledger excluding prompt/raw result/credential/system-command/Incident content;
+- deterministic local no-network adapter, disabled by default;
+- independent verifier that recomputes the expected local proof;
+- tampered result rejection and ambiguous adapter failure -> `UNKNOWN` proof.
 
-### Active implementation sequence
+### Verified state
 
-1. Audit existing AI-agent execution modules/tests against the locked contract.
-2. Define provider-neutral `AgentRequest` identity and validation boundary.
-3. Define provider-neutral raw `AgentResult` and terminal execution states.
-4. Add bounded time, retry, and resource budgets.
-5. Add durable request/execution identity and replay semantics where consequential.
-6. Add independent result-verification boundary; model self-report is never proof.
-7. Record accepted/rejected result evidence without exposing credentials.
-8. Prove the complete flow with a deterministic non-network fake/local adapter.
-9. Only after the foundation is green, consider a provider-specific adapter through separate configuration/credential review.
+- canonical focused Commander regression: **225 PASS**;
+- canonical full regression: **2,178 PASS**;
+- curated public focused Commander regression: **225 PASS**;
+- curated public full regression: **2,162 PASS**;
+- canonical actual-main CI and Public Distribution: **PASS**;
+- curated OSS AI sync CI: **PASS**;
+- canonical-public delta remains **16 tests**, consistent with the curated private/public boundary.
 
-### Mandatory acceptance criteria
+### Foundation exit condition
 
-- request identifier, agent identifier, task identifier, requested operation, execution context, and authority context are explicit;
-- incomplete identity fails closed;
-- AI output cannot directly mutate Incident lifecycle;
-- AI output cannot authorize remediation or bypass policy/execution gates;
-- failure, timeout, cancellation, and uncertain result are never reported as success;
-- verifier is independent from AI output;
-- consequential AI proposals still use canonical policy -> execution -> verification;
-- evidence can reconstruct request -> agent -> execution -> result -> verification -> acceptance/rejection;
-- no single AI provider becomes canonical authority;
-- no live provider credential is required for the provider-neutral foundation.
+A deterministic provider-neutral agent request executes through the canonical AI boundary, produces an observable raw result, receives independent acceptance/rejection, leaves reconstructable evidence, persists replay-safe execution identity and grants the AI no policy, lifecycle, contract, Commander, shell or remediation authority.
 
-### Exit condition
+**Foundation exit:** CORE COMPLETE.
 
-A deterministic provider-neutral agent request can execute through the canonical AI-agent boundary, produce a raw result, be independently accepted/rejected, and leave reconstructable evidence without granting the AI any policy, lifecycle, contract, or remediation authority.
+### Live AI Provider Adapter — DECISION-GATED / DISABLED
+
+Provider selection and live activation are a separate capability decision. Before any OpenAI, Gemini, Ollama or other live adapter can be enabled, define and review:
+
+- provider/model role and replaceability;
+- credential source, rotation and disclosure boundary;
+- outbound-network allow rules;
+- time, cancellation, retry and resource/token budgets;
+- rate limiting/backoff;
+- ambiguous request/provider acknowledgement -> terminal uncertainty semantics;
+- prompt/input/output disclosure policy;
+- result verification based on observable Sentinel/system state where consequential;
+- controlled live proof;
+- explicit prohibition on direct shell, policy, lifecycle or remediation authority.
+
+Provider output remains untrusted even after successful transport execution.
 
 ---
 
-## Bounded Production Target Expansion — PLANNED
+## Bounded Production Target Expansion — PLANNED / COMMANDER-REVIEWED
 
-Each additional autonomous production target requires its own explicit target identity, action allowlist, blast radius, cooldown, retry window, concurrency constraint, exact-effect continuity, independent post-effect verification, durable attempt evidence, and Commander-reviewed capability expansion where required.
+Each additional autonomous production target requires exact target identity, action allowlist, blast radius, cooldown, retry window, concurrency constraint, exact-effect continuity, independent post-effect verification and durable attempt evidence.
 
 No generic restart-anything or unrestricted shell authority is permitted.
 
@@ -207,26 +160,13 @@ No generic restart-anything or unrestricted shell authority is permitted.
 
 ## Canonical AIRIV Event+Job Integration — DEPENDENCY-GATED
 
-Sentinel may integrate only with the canonical AIRIV Event+Job Foundation. It must not become or create a parallel Event Bus/Job Worker.
-
-Required identity/correlation fields supplied by AIRIV must remain reconstructable, and at-least-once semantics require explicit idempotency behavior.
-
-Work starts only when the relevant AIRIV platform adapter/interface is stable enough to consume without Sentinel inventing platform semantics.
+Sentinel may integrate only with the canonical AIRIV Event+Job Foundation and must not create a parallel Event Bus or Job Worker. Work begins only when the AIRIV platform adapter/interface is stable enough to consume without Sentinel inventing platform semantics.
 
 ---
 
 ## Packaging, Upgrade & Rollback — PLANNED
 
-Required future capabilities:
-
-- versioned release artifact;
-- deterministic install validation;
-- upgrade preflight;
-- atomic/recoverable upgrade path;
-- post-upgrade service verification;
-- explicit rollback path;
-- release provenance without public disclosure of private host state;
-- curated OSS release flow separate from private canonical provenance.
+Future capability must include versioned artifacts, deterministic install validation, upgrade preflight, atomic/recoverable upgrade, post-upgrade verification, explicit rollback and release provenance without exposing private host state.
 
 CI may coordinate evidence but must not gain general production/root authority.
 
@@ -234,7 +174,7 @@ CI may coordinate evidence but must not gain general production/root authority.
 
 ## Fleet & Multi-host Control — LATER
 
-Preconditions include stable host identity, cross-host execution identity, durable evidence correlation, explicit authority delegation, host-scoped policy/blast radius, and recovery semantics for network partitions/uncertain remote effects.
+Preconditions: stable host identity, cross-host execution identity, durable evidence correlation, explicit authority delegation, host-scoped policy/blast radius and recovery semantics for network partitions/uncertain remote effects.
 
 Remote shell access alone is not fleet control.
 
@@ -242,35 +182,20 @@ Remote shell access alone is not fleet control.
 
 ## Observability, SLO & Recovery Hardening — CROSS-CUTTING
 
-Ongoing scope:
-
-- worker/daemon liveness and staleness;
-- incident/remediation metrics;
-- report-store/reconciliation health;
-- Commander attention backlog visibility;
-- delivery identity/backlog visibility;
-- AI execution queue/budget/verifier health when introduced;
-- failure injection and recovery tests;
-- resource-use boundaries;
-- upgrade/restart continuity;
-- SLO definitions once measurements are trustworthy.
+Ongoing scope includes daemon health, incident/remediation metrics, report reconciliation health, Commander attention backlog, delivery identities, AI execution identity/verifier health, failure injection, resource-use boundaries and restart/upgrade continuity.
 
 ---
 
 ## Change control
 
-Changes are classified as documentation clarification, test hardening, contract-preserving bug fix, contract amendment, architecture change, or capability expansion.
-
-Contract amendments, architecture changes, new production effects, public/private disclosure changes, live external delivery, provider credential activation, and other irreversible/high-risk behavior require explicit Commander-level review before activation.
-
-Routine implementation inside locked boundaries proceeds through normal engineering and CI gates.
+Documentation clarification, test hardening and contract-preserving bug fixes proceed through normal engineering/CI gates. Contract amendments, architecture changes, new production effects, disclosure-boundary changes, live external delivery, provider credential activation and other high-risk capability expansion require explicit Commander-level review before activation.
 
 ## Definition of Done
 
-A slice is DONE only when implementation matches governing contracts, success and fail-closed tests exist, security/docs/compile gates pass, focused regressions pass where relevant, full regression passes, curated-public validation passes for public-eligible content, hidden production effects are absent, required live proof is separately authorized, and evidence can reconstruct what happened and why.
+A slice is DONE only when implementation matches governing contracts, success and fail-closed tests exist, security/docs/compile gates pass, focused regressions pass where relevant, full regression passes, curated-public validation passes for public-eligible content, hidden production effects are absent and evidence can reconstruct what happened and why.
 
 ## Immediate execution order
 
-**ACTIVE NOW: Verified AI Agent Operations.**
+Completed current safe slice: **provider-neutral Verified AI Agent Operations foundation**.
 
-The next slice is a provider-neutral request/result/execution boundary with deterministic non-network proof. Provider selection, credentials, and live-provider execution remain separate configuration and authorization decisions.
+Decision-gated next capabilities are live AI-provider activation, external Commander delivery and production-target expansion. Safe non-live engineering may continue with packaging/upgrade/rollback and observability hardening without widening runtime authority.

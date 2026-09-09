@@ -11,62 +11,53 @@
 ![Runtime systemd](https://img.shields.io/badge/Runtime-systemd-5C2D91?logo=linux&logoColor=white)
 ![Safety Fail Closed](https://img.shields.io/badge/Safety-Fail--Closed-critical)
 ![Autonomy Bounded](https://img.shields.io/badge/Autonomy-Bounded-orange)
-![Canonical Regression](https://img.shields.io/badge/Canonical%20Regression-2154%20passed-success)
-![Public Regression](https://img.shields.io/badge/Public%20Regression-2138%20passed-success)
+![Canonical Regression](https://img.shields.io/badge/Canonical%20Regression-2178%20passed-success)
+![Public Regression](https://img.shields.io/badge/Public%20Regression-2162%20passed-success)
 ![Status Pre-release](https://img.shields.io/badge/Status-Pre--release-yellow)
 
-## Project description
+## Project lock — 2026-09-09
 
-AIRIV Sentinel is a security-first autonomous operations commander for AIRIV development and runtime systems. It observes runtime state, manages incidents, preserves auditable evidence, executes only explicitly authorized effects, independently verifies consequential outcomes, and performs autonomous remediation only inside bounded policy and safety contracts.
-
-**Project state:** active V1 / pre-release. The V1 architecture is frozen and change-controlled. Post-freeze capabilities are accepted only when canonical authority, evidence, replay, verification, lifecycle, and disclosure boundaries remain intact.
+AIRIV Sentinel is a security-first autonomous operations commander. It observes runtime state, manages incidents, preserves auditable evidence, executes only explicitly authorized effects, independently verifies consequential outcomes, and performs autonomous remediation only inside bounded policy and safety contracts.
 
 **Canonical precedence:** `Contract > Implementation > Local Preference`.
 
-## Repository topology — LOCKED
-
-| Domain | Access | Role | Boundary |
-| --- | --- | --- | --- |
-| `AIRIV-Sentinel` | Private | Canonical source | Authoritative contracts, implementation, tests, private operational provenance, host/deployment control material, release tooling |
-| `AIRIV-Sentinel-OSS` | Public | Curated open-source distribution | Explicitly allowlisted reviewed source, public contracts/docs/tests, standard deployment material, `README.md`, `index.html` |
-
-The public project is **not** a mirror of private Git history. Publication is allowlist-based, secret-scanned, disclosure-validated, and fail-closed. Publishing source grants no runtime, production, Commander, or remediation authority.
-
-## Current project lock — 2026-09-09
-
-- **Target capability:** Autonomous Commander
-- **Primary runtime:** Linux + systemd
-- **Primary language:** Python 3.14
-- **Canonical validation:** **225 focused + 2,154 full regression tests**
-- **Curated OSS validation:** **225 focused + 2,138 full regression tests**
-- **Canonical source head validated before this documentation closeout:** `20345b9ca323ca0527e12d680a627d1c750d13ea`
-- **Curated OSS source head validated:** `ce4412d9082025fb0858979a60d75607a2d0122d`
-
-| Area | Current state |
+| Item | Locked / verified state |
 | --- | --- |
-| Mission | **LOCKED** — AIRIV Sentinel is the Autonomous Commander |
-| Strategic authority | **LOCKED** — human Commander retains final strategic authority |
-| Safety | **LOCKED** — fail-closed / default-deny |
-| V1 architecture | **FROZEN** and change-controlled |
-| Incident lifecycle | Centralized, monotonic, evidence-driven |
-| Execution | Exact authorized effect only |
-| Verification | Independent; execution success alone is never recovery |
+| Target | **Autonomous Commander** |
+| Strategic authority | Human Commander remains final strategic authority |
+| Safety | **Fail closed / default deny** |
+| V1 architecture | **FROZEN / change-controlled** |
+| Runtime | Linux + systemd + Python 3.14 |
+| Canonical regression | **225 focused + 2,178 full PASS** |
+| Curated public regression | **225 focused + 2,162 full PASS** |
 | Operational Evidence & Commander UX | **CORE COMPLETE** |
-| Commander Delivery Transport Foundation | **COMPLETE** — non-network dry-run proof, default transport disabled |
-| External email/webhook delivery | **DECISION-GATED / DISABLED** |
-| Verified AI Agent Operations | **ACTIVE** — provider-neutral foundation next |
+| Commander Delivery Transport Foundation | **COMPLETE** |
+| External Commander delivery | **DECISION-GATED / DISABLED** |
+| Provider-neutral AI execution & replay foundation | **CORE COMPLETE** |
+| Live AI provider / credentials / outbound network | **DECISION-GATED / DISABLED** |
 | Gate 3 | **PASSED / LOCKED** |
 | Gate 4 | **BOUNDED** autonomous production-remediation profile |
-| Distribution | Private canonical + curated public source; no private-history mirroring |
-| Release | Pre-release; stable release/tag remains separate |
+| Release | Pre-release |
 
-See the implementation sequence in [AIRIV Sentinel Roadmap](AIRIV_SENTINEL_ROADMAP.md).
+Validated implementation heads before this documentation closeout:
+
+- canonical: `f1f00b582f890585311f37def53954af35a1eda6`;
+- curated public: `bba2785b1549151c95dc360daa02dc7f6118f4be`.
+
+See [AIRIV Sentinel Roadmap](AIRIV_SENTINEL_ROADMAP.md).
+
+## Repository topology — LOCKED
+
+| Domain | Role | Boundary |
+| --- | --- | --- |
+| `AIRIV-Sentinel` | Private canonical source | contracts, implementation, tests, private operational/release/host provenance, release tooling |
+| `AIRIV-Sentinel-OSS` | Curated public source | explicitly allowlisted reviewed source, contracts, docs, tests and standard deployment material |
+
+The public repository is **not** a mirror of private Git ancestry. Publication is allowlist-based, secret-scanned, disclosure-validated and fail-closed. Publishing source grants no runtime, production, Commander or remediation authority.
 
 ## Mission and authority
 
 Canonical mission: [AIRIV Sentinel Mission Contract V1](contracts/AIRIV_SENTINEL_MISSION_CONTRACT_V1.md).
-
-Authority chain:
 
 ```text
 COMMANDER
@@ -78,16 +69,15 @@ COMMANDER
   -> INCIDENT OUTCOME
 ```
 
-Core rules:
+Non-negotiable rules:
 
-- Human Commander retains final strategic authority.
 - `RemediationPolicy` is the canonical remediation ALLOW/DENY authority.
 - `ExecutionBoundary` is the sole command-execution boundary.
-- Independent verification is required for consequential success claims.
 - `IncidentManager.resolve()` is the sole terminal incident lifecycle mutation boundary.
-- AI output is an execution/intelligence resource, never semantic authority by itself.
-- Unknown, malformed, stale, mismatched, unauthorized, exhausted, or indeterminate effects fail closed.
-- Terminal uncertain outcomes are not blindly retried.
+- independent verification is required for consequential success claims;
+- AI output is an untrusted execution/intelligence resource, never authority by itself;
+- malformed, stale, mismatched, unauthorized or indeterminate effects fail closed;
+- terminal uncertainty is not blindly retried.
 
 ## Canonical engineering flow
 
@@ -106,7 +96,7 @@ Observation
 -> IncidentManager.resolve()
 ```
 
-No duplicate policy evaluation, execution, verification, or terminal lifecycle mutation is permitted.
+No duplicate policy evaluation, execution, verification or terminal lifecycle mutation is permitted.
 
 ## Runtime specification
 
@@ -128,11 +118,9 @@ $REPO/venv/bin/python -m sentinel
 | Logging | systemd journal |
 | Standard umask | `0027` |
 
-Standard template: [airiv-sentinel.service.in](deployment/systemd/airiv-sentinel.service.in).
+Template: [airiv-sentinel.service.in](deployment/systemd/airiv-sentinel.service.in).
 
 ## Operational Evidence & Commander UX — CORE COMPLETE
-
-The unattended reporting stack now forms a read-only, derived operational surface:
 
 ```text
 IncidentManager
@@ -145,21 +133,9 @@ IncidentManager
 -> CommanderDeliveryProjection
 ```
 
-Locked behavior:
-
-- active and terminal incidents are reportable without lifecycle mutation;
-- reports are atomically persisted with integrity metadata;
-- unsafe report identities and corrupt persisted state fail closed;
-- reconciliation is idempotent and append-retentive;
-- runtime reconciliation occurs immediately once, then at most once every 60 seconds;
-- reporting errors are visible but cannot disable monitoring/remediation;
-- Commander Attention Queue contains only canonical facts explicitly marked for Commander attention;
-- delivery projection uses an exact-field disclosure allowlist;
-- raw evidence snapshots, command/output details, credentials, tokens, and unreviewed future schema fields do not cross the delivery projection boundary.
+Verified behavior includes atomic report persistence, integrity metadata, idempotent reconciliation, append-retentive evidence, explicit Commander-attention derivation and exact-field disclosure projection. Reporting is read-only with respect to canonical incident lifecycle and reporting failure cannot silently disable monitoring/remediation.
 
 ## Commander Delivery Transport Foundation — COMPLETE
-
-The delivery foundation proves the entire side-effect lifecycle without contacting an external recipient:
 
 ```text
 CommanderDeliveryProjection
@@ -171,62 +147,60 @@ CommanderDeliveryProjection
 -> durable replay-safe outcome
 ```
 
-Implemented guarantees:
+The production default is disabled/no-send. Delivery identities are durable and replay-safe; projection digest, destination and transport identity remain bound; terminal failure/uncertainty is not blindly retried; ledger metadata excludes subject/body/raw incident evidence/credentials; deterministic local-file dry-run proves orchestration without network access. `SentinelRuntime.deliver_commander_brief()` is explicit and daemon `run_once()` does not auto-send.
 
-- transport interface is explicit;
-- production default is disabled/no-send;
-- delivery identities are durable and replay-safe;
-- projection digest + destination + transport identity are bound together;
-- terminal `FAILED` and `UNKNOWN` states are not blindly retried;
-- transport exceptions store exception type only, not exception text;
-- delivery ledger does not persist subject/body/raw incident evidence/credentials;
-- deterministic local file dry-run proves end-to-end orchestration without network access;
-- dry-run artifacts are atomic and never overwritten;
-- `SentinelRuntime.deliver_commander_brief()` is explicit;
-- daemon `run_once()` does **not** auto-send.
+**External network delivery remains disabled.** A live adapter requires exact channel and destination, credential handling, privacy/disclosure rules, bounded retries, acknowledgement semantics and separately controlled live proof.
 
-**External network delivery is not enabled.** Email/webhook adapters require an explicit channel, exact destination/recipient, credential handling, retry/failure semantics, privacy rules, and a separately controlled live proof.
+## Verified AI Agent Operations — provider-neutral foundation CORE COMPLETE
 
-## Verified AI Agent Operations — ACTIVE
+Governing contract: [AI Agent Execution Contract V1](contracts/AIRIV_SENTINEL_AI_AGENT_EXECUTION_CONTRACT_V1.md).
 
-The governing [AI Agent Execution Contract V1](contracts/AIRIV_SENTINEL_AI_AGENT_EXECUTION_CONTRACT_V1.md) is locked and provider-neutral.
-
-Immediate implementation target:
+Canonical provider-neutral flow:
 
 ```text
 AgentRequest
--> provider-neutral AgentExecutionBoundary
--> AI execution resource
--> raw AgentResult
--> independent Sentinel verification
--> evidence
--> accepted/rejected result
+-> AgentExecutionBoundary
+-> replaceable AI execution resource
+-> RawAgentResult
+-> independent Sentinel verifier
+-> append-oriented evidence
+-> accepted / rejected result
 ```
 
-Required properties:
+Implemented and regression-locked:
 
-- explicit request, agent, and task identities;
-- bounded time/retry/resource budgets;
-- provider-neutral adapter boundary;
-- failure/timeout/cancellation remain observable;
-- result verification is independent from model output;
-- AI-proposed consequential actions still pass through canonical policy, execution, and verification boundaries;
-- no provider credential or live-provider activation is implied by the foundation work.
+- immutable request identity: request, agent, task, operation, execution context and authority context;
+- immutable raw result identity and terminal status validation;
+- production-safe disabled adapter and default-deny verifier;
+- independent verification: AI self-report is not proof;
+- sanitized adapter/verifier failures;
+- append-oriented AI execution evidence;
+- legacy `AIAgentExecutionBoundary` compatibility surface routed through the single canonical boundary;
+- durable execution identity states `CLAIMED / RUNNING / SUCCEEDED / FAILED / UNKNOWN`;
+- exact full-request SHA-256 continuity and replay suppression;
+- incomplete or ambiguous execution can terminalize as `UNKNOWN` and is not automatically re-executed;
+- durable identity ledger stores bounded metadata only, not prompts, raw model output, credentials, system commands or incident state;
+- deterministic local no-network adapter + independent verifier proof;
+- local proof is disabled by default and remains proposal-only.
+
+The AI resource still owns **no** policy, lifecycle, contract, shell, Commander or remediation authority.
+
+### Live-provider boundary — DECISION-GATED
+
+No OpenAI, Gemini, Ollama or other provider is activated by this foundation. Before a network provider can be enabled, Sentinel still needs an explicitly reviewed provider adapter, credential source/rotation boundary, outbound-network rules, timeout/cancellation/resource budgets, rate limits/backoff, ambiguous-acknowledgement semantics, prompt/disclosure policy and controlled live proof. Consequential proposals must continue through canonical policy -> execution -> independent verification.
 
 ## Remediation levels
 
 | Level | Meaning |
 | --- | --- |
-| L0 — OBSERVE | Read-only observation |
-| L1 — DIAGNOSE | Investigation and evidence collection |
-| L2 — AUTONOMOUS REMEDIATION | Explicit policy-controlled effect inside bounded capability |
-| L3 — COMMANDER REQUIRED | Consequential effect requires Commander authority |
+| L0 — OBSERVE | read-only observation |
+| L1 — DIAGNOSE | investigation and evidence collection |
+| L2 — AUTONOMOUS REMEDIATION | explicitly bounded policy-controlled effect |
+| L3 — COMMANDER REQUIRED | consequential effect requiring Commander authority |
 
-Gate 3 is **PASSED / LOCKED**. Gate 4 remains **BOUNDED** and does not create wildcard targets, general root automation, fabricated approval, or blind retry of indeterminate effects.
+Gate 3 is **PASSED / LOCKED**. Gate 4 remains **BOUNDED**; it creates no wildcard targets, general root automation, fabricated approval or blind retry of uncertain effects.
 
 ## GitHub Actions and host authority
-
-Repository validation and privileged host effects are separate trust domains:
 
 ```text
 Repository change
@@ -239,11 +213,11 @@ Repository change
 -> evidence
 ```
 
-An ordinary push does not itself authorize a production effect.
+An ordinary push does not authorize a production effect. Documentation and source promotions in this project lock do not themselves trigger production host execution.
 
 ## Installation guide
 
-Standard installation preserves fail-closed defaults. It does **not** enable autonomous production remediation or external Commander delivery.
+Standard installation preserves fail-closed defaults. It does not enable autonomous production remediation, external Commander delivery or a live AI provider.
 
 ### Clone
 
@@ -252,7 +226,7 @@ git clone https://github.com/arivonto/AIRIV-Sentinel-OSS.git "$HOME/airiv/airiv-
 cd "$HOME/airiv/airiv-sentinel"
 ```
 
-The curated public distribution transforms this repository reference to `AIRIV-Sentinel-OSS`.
+This repository is the curated public distribution.
 
 ### Environment
 
@@ -262,7 +236,7 @@ venv/bin/python -m pip install --upgrade pip
 venv/bin/python -m pip install -r requirements-dev.txt
 ```
 
-Dependencies are defined in [requirements-dev.txt](requirements-dev.txt).
+Dependencies: [requirements-dev.txt](requirements-dev.txt).
 
 ### Validate
 
@@ -279,27 +253,25 @@ bash scripts/public_release_secret_scan.sh
 PYTHONPATH=. venv/bin/python -m sentinel
 ```
 
-### systemd
-
-Use the reviewed standard service template and deployment tooling for the target host. Production remediation and any future external-delivery enablement remain separate reviewed operations.
+Use the reviewed standard service template for systemd installation. Production remediation, external delivery and live AI-provider enablement remain separate reviewed operations.
 
 ## Security boundary
 
 See [SECURITY.md](SECURITY.md).
 
-AIRIV Sentinel assumes that credentials, authorization state, production evidence, private host topology, and private release/deployment provenance are not public documentation. CI and curated-public validation guard against accidental disclosure.
+Credentials, authorization state, production evidence, private host topology and private release/deployment provenance are not public documentation. CI and curated-public validation guard against accidental disclosure.
 
 ## Roadmap lock
 
-The [AIRIV Sentinel Roadmap](AIRIV_SENTINEL_ROADMAP.md) is change-controlled. The following remain non-negotiable:
+The [AIRIV Sentinel Roadmap](AIRIV_SENTINEL_ROADMAP.md) is change-controlled. These remain non-negotiable:
 
 1. Commander is final strategic authority.
 2. Fail-closed/default-deny behavior is mandatory.
-3. Policy, execution, verification, outcome mapping, and lifecycle mutation remain exclusive boundaries.
+3. Policy, execution, verification, outcome mapping and lifecycle mutation remain exclusive boundaries.
 4. Evidence and replay identity are mandatory for consequential effects.
 5. AI output is never authority by itself.
 6. Autonomous remediation expands only through explicit bounded contracts.
-7. External delivery is disabled until an adapter and exact destination are explicitly reviewed.
+7. External delivery and live AI providers remain disabled until explicitly reviewed.
 8. Sentinel must not create a parallel AIRIV Event Bus or Job Worker.
 9. Public distribution remains curated, not a private-history mirror.
 
