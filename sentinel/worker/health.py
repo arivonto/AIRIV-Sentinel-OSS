@@ -36,6 +36,19 @@ class WorkerHealthSnapshot:
     age_seconds: float | None
 
 
+@dataclass(frozen=True)
+class WorkerHealthProjection:
+    """Immutable read-only liveness/staleness projection at one query time."""
+
+    observed_at: datetime
+    workers: tuple[WorkerHealthSnapshot, ...]
+    total_workers: int
+    unknown_count: int
+    healthy_count: int
+    unhealthy_count: int
+    stale_count: int
+
+
 class HealthMonitor:
     """Report heartbeat facts for registered identities without polling workers.
 
@@ -110,4 +123,21 @@ class HealthMonitor:
         return tuple(
             self._snapshot(worker_id, heartbeat, query_time)
             for worker_id, heartbeat in zip(worker_ids, heartbeats)
+        )
+
+    def projection(self, *, now: datetime | None = None) -> WorkerHealthProjection:
+        """Project worker freshness without polling, recovery, or side effects."""
+        query_time = self._query_time(now)
+        workers = self.snapshots(now=query_time)
+        counts = {status: 0 for status in WorkerHealthStatus}
+        for worker in workers:
+            counts[worker.status] += 1
+        return WorkerHealthProjection(
+            observed_at=query_time,
+            workers=workers,
+            total_workers=len(workers),
+            unknown_count=counts[WorkerHealthStatus.UNKNOWN],
+            healthy_count=counts[WorkerHealthStatus.HEALTHY],
+            unhealthy_count=counts[WorkerHealthStatus.UNHEALTHY],
+            stale_count=counts[WorkerHealthStatus.STALE],
         )

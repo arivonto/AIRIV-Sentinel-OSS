@@ -14,6 +14,7 @@ from .health import (
     HealthMonitorError,
     InvalidHeartbeatError,
     InvalidHealthMonitorConfigurationError,
+    WorkerHealthProjection,
     WorkerHealthSnapshot,
     WorkerHealthStatus,
 )
@@ -78,6 +79,7 @@ __all__ = [
     "HealthMonitorError",
     "InvalidHeartbeatError",
     "InvalidHealthMonitorConfigurationError",
+    "WorkerHealthProjection",
     "WorkerHealthSnapshot",
     "WorkerHealthStatus",
     "WorkerState",
