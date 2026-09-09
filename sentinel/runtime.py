@@ -1,10 +1,16 @@
 """AIRIV Sentinel canonical runtime entrypoint."""
 
+import sys
 import time
 import uuid
 
 from sentinel.execution import ExecutionBoundary
 from sentinel.commander import CommanderOrchestrator
+from sentinel.commander_delivery import CommanderDeliveryProjector
+from sentinel.commander_delivery_transport import CommanderDeliveryOrchestrator
+from sentinel.incident_report_recorder import IncidentReportRecorder
+from sentinel.incident_report_store import IncidentReportStore
+from sentinel.incident_reporting import IncidentReportBuilder
 from sentinel.incidents.manager import IncidentManager, Incident
 from sentinel.remediation_evidence_flow import EvidenceCompleteRemediationFlow
 from sentinel.remediation_gate import RemediationExecutionGate
@@ -31,6 +37,7 @@ from sentinel.tmux_remediation_verifier import (
     TmuxVerificationTarget,
 )
 from sentinel.runtime_sensor_adapter import RuntimeSensorAdapter
+from sentinel.unattended_reporting import UnattendedIncidentRollupBuilder
 from sentinel.diagnostic.runtime_coordinator import (
     RuntimeDiagnosticCoordinator,
 )
@@ -44,6 +51,8 @@ class SentinelRuntime:
         self.last_production_probe_live_result = None
         self.last_gate3_live_result = None
         self.last_gate4_autonomous_result = None
+        self.last_incident_report_sync_result = None
+        self.last_incident_report_sync_error = None
         self.running = False
 
         self.execution = ExecutionBoundary()
@@ -61,6 +70,20 @@ class SentinelRuntime:
 
         # IncidentManager is the SOLE canonical incident authority.
         self.incident_manager = IncidentManager()
+
+        # Reporting persistence is derived and non-authoritative. It receives
+        # no Commander, policy, execution, or remediation capability.
+        self.incident_report_store = IncidentReportStore()
+        self.incident_report_recorder = IncidentReportRecorder(
+            self.incident_report_store
+        )
+        self.incident_report_sync_interval_seconds = 60.0
+        self._next_incident_report_sync_at = 0.0
+
+        # External delivery is a separate, disabled-by-default effect boundary.
+        # The default orchestrator owns only delivery identity plus a disabled
+        # transport and is never called automatically by the daemon loop.
+        self.commander_delivery = CommanderDeliveryOrchestrator()
 
         # Evidence flow records remediation evidence on the canonical Incident.
         self.remediation_flow = EvidenceCompleteRemediationFlow()
@@ -212,6 +235,111 @@ class SentinelRuntime:
             active_production_effects=active_production_effects,
         )
 
+    def get_incident_report(self, incident_id: str):
+        """Return a read-only report from canonical active or terminal state.
+
+        Reporting is intentionally non-authoritative. This method performs no
+        policy evaluation, command execution, remediation, verification side
+        effect, or incident lifecycle mutation.
+        """
+        return IncidentReportBuilder().build_from_manager(
+            self.incident_manager,
+            incident_id,
+        )
+
+    def sync_incident_reports(self):
+        """Reconcile canonical Incident state into derived durable reports."""
+        result = self.incident_report_recorder.sync(self.incident_manager)
+        self.last_incident_report_sync_result = result
+        self.last_incident_report_sync_error = None
+        return result
+
+    def _sync_incident_reports_if_due(self, monotonic_now: float | None = None):
+        """Run bounded reporting reconciliation without risking core runtime.
+
+        A reporting/storage failure remains fail-closed at the reporting
+        boundary, is exposed through runtime state and stderr/journal, and does
+        not disable monitoring or remediation. Retry is bounded by the same
+        cadence instead of becoming a tight failure loop.
+        """
+        now = time.monotonic() if monotonic_now is None else monotonic_now
+        if now < self._next_incident_report_sync_at:
+            return None
+
+        self._next_incident_report_sync_at = (
+            now + self.incident_report_sync_interval_seconds
+        )
+        try:
+            return self.sync_incident_reports()
+        except Exception as exc:
+            self.last_incident_report_sync_result = None
+            self.last_incident_report_sync_error = (
+                f"{type(exc).__name__}: {exc}"
+            )
+            print(
+                "[SENTINEL][REPORTING] incident report sync failed: "
+                f"{self.last_incident_report_sync_error}",
+                file=sys.stderr,
+                flush=True,
+            )
+            return None
+
+    def get_unattended_rollup(
+        self,
+        *,
+        window_start: str | None = None,
+        window_end: str | None = None,
+        generated_at: str | None = None,
+    ):
+        """Return a read-only unattended rollup from durable report state."""
+        return UnattendedIncidentRollupBuilder().build_from_store(
+            self.incident_report_store,
+            window_start=window_start,
+            window_end=window_end,
+            generated_at=generated_at,
+        )
+
+    def get_commander_delivery_projection(
+        self,
+        *,
+        window_start: str | None = None,
+        window_end: str | None = None,
+        generated_at: str | None = None,
+    ):
+        """Return an allowlisted brief for a future external transport."""
+        rollup = self.get_unattended_rollup(
+            window_start=window_start,
+            window_end=window_end,
+            generated_at=generated_at,
+        )
+        return CommanderDeliveryProjector().project(rollup)
+
+    def deliver_commander_brief(
+        self,
+        *,
+        delivery_id: str,
+        destination_id: str,
+        window_start: str | None = None,
+        window_end: str | None = None,
+        generated_at: str | None = None,
+    ):
+        """Explicitly invoke the separate Commander delivery boundary.
+
+        The canonical runtime composes this boundary with a disabled transport.
+        The daemon loop never calls this method automatically. A caller may
+        replace the transport only through an explicit reviewed composition.
+        """
+        projection = self.get_commander_delivery_projection(
+            window_start=window_start,
+            window_end=window_end,
+            generated_at=generated_at,
+        )
+        return self.commander_delivery.deliver(
+            projection=projection,
+            delivery_id=delivery_id,
+            destination_id=destination_id,
+        )
+
     def start(self) -> None:
         self.running = True
         self.diagnostic.start()
@@ -247,6 +375,7 @@ class SentinelRuntime:
 
         incidents = self.sensor_adapter.process_tick()
         self.diagnostic.submit(incidents)
+        self._sync_incident_reports_if_due()
         return incidents
 
     def remediate(

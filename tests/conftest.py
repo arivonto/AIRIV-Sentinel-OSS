@@ -40,3 +40,25 @@ def isolate_systemd_production_activation_state(monkeypatch, tmp_path):
         "AIRIV_SENTINEL_SYSTEMD_PRODUCTION_ACTIVATION_DIR",
         str(tmp_path / "systemd_production_activation"),
     )
+
+
+@pytest.fixture(autouse=True)
+def isolate_incident_reporting_state(monkeypatch, tmp_path):
+    """Prevent runtime reporting tests from writing canonical report state."""
+    monkeypatch.setenv(
+        "AIRIV_SENTINEL_INCIDENT_REPORT_DIR",
+        str(tmp_path / "incident_reports"),
+    )
+
+
+@pytest.fixture(autouse=True)
+def isolate_commander_delivery_state(monkeypatch, tmp_path):
+    """Prevent delivery identity tests from writing canonical delivery state."""
+    monkeypatch.setenv(
+        "AIRIV_SENTINEL_DELIVERY_IDENTITY_DIR",
+        str(tmp_path / "delivery_identity"),
+    )
+    monkeypatch.setenv(
+        "AIRIV_SENTINEL_DELIVERY_DRY_RUN_DIR",
+        str(tmp_path / "delivery_dry_run"),
+    )
