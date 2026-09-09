@@ -1,8 +1,11 @@
+import pytest
+
 from sentinel.agent.executor import (
     AIAgentExecutionBoundary,
     AgentExecutionError,
     AgentExecutionRequest,
 )
+from sentinel.ai_agent_execution import AgentExecutionBoundary
 
 
 class StubAgent:
@@ -17,7 +20,7 @@ class StubAgent:
 
 class FailingAgent:
     def execute(self, request):
-        raise RuntimeError("agent unavailable")
+        raise RuntimeError("provider detail must not escape")
 
 
 def make_request():
@@ -32,10 +35,22 @@ def make_request():
     )
 
 
+def test_legacy_surface_routes_through_canonical_boundary():
+    boundary = AIAgentExecutionBoundary(StubAgent("diagnosis"))
+
+    assert isinstance(boundary._boundary, AgentExecutionBoundary)
+
+    result = boundary.execute(make_request())
+
+    assert result.success is True
+    assert len(boundary.evidence_records) == 1
+    assert boundary.evidence_records[0].verification_accepted is False
+
+
 def test_agent_execution_returns_observable_result():
     adapter = StubAgent({"diagnosis": "test"})
-
     boundary = AIAgentExecutionBoundary(adapter)
+
     result = boundary.execute(make_request())
 
     assert result.success is True
@@ -47,35 +62,31 @@ def test_agent_execution_returns_observable_result():
     assert adapter.requests == [make_request()]
 
 
-def test_agent_failure_is_not_reported_as_success():
+def test_agent_failure_is_not_reported_as_success_or_raw_exception_text():
     boundary = AIAgentExecutionBoundary(FailingAgent())
 
     result = boundary.execute(make_request())
 
     assert result.success is False
+    assert result.status == "FAILED"
     assert result.output["error_type"] == "RuntimeError"
-    assert "agent unavailable" in result.output["error"]
+    assert result.output["error"] == "AI agent execution failed."
+    assert "provider detail" not in str(result.output)
+    assert len(boundary.evidence_records) == 1
+    assert boundary.evidence_records[0].verification_accepted is False
 
 
-def test_missing_execution_identity_is_rejected():
-    boundary = AIAgentExecutionBoundary(StubAgent("ok"))
-
-    request = AgentExecutionRequest(
-        request_id="",
-        agent_id="agent-test",
-        task_id="task-001",
-        input_payload={},
-        requested_operation="diagnose",
-        execution_context={},
-        authority_context={},
-    )
-
-    try:
-        boundary.execute(request)
-    except AgentExecutionError:
-        pass
-    else:
-        raise AssertionError("missing request_id was not rejected")
+def test_missing_execution_identity_is_rejected_at_canonical_request_boundary():
+    with pytest.raises(AgentExecutionError):
+        AgentExecutionRequest(
+            request_id="",
+            agent_id="agent-test",
+            task_id="task-001",
+            input_payload={},
+            requested_operation="diagnose",
+            execution_context={},
+            authority_context={},
+        )
 
 
 def test_agent_output_is_returned_without_becoming_sentinel_state():
@@ -85,22 +96,24 @@ def test_agent_output_is_returned_without_becoming_sentinel_state():
             "status": "RESOLVED",
         }
     )
-
     boundary = AIAgentExecutionBoundary(adapter)
+
     result = boundary.execute(make_request())
 
     assert result.success is True
     assert result.output["status"] == "RESOLVED"
     assert not hasattr(result, "incident_status")
     assert not hasattr(result, "verification")
+    assert not hasattr(result, "remediation_authorized")
 
 
-def test_authority_context_is_explicit():
+def test_authority_context_is_explicit_and_immutable():
     adapter = StubAgent("diagnosis")
-
     boundary = AIAgentExecutionBoundary(adapter)
     request = make_request()
 
     boundary.execute(request)
 
-    assert adapter.requests[0].authority_context == {"level": "L1"}
+    assert dict(adapter.requests[0].authority_context) == {"level": "L1"}
+    with pytest.raises(TypeError):
+        adapter.requests[0].authority_context["level"] = "self-granted"
