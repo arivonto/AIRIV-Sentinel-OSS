@@ -7,328 +7,270 @@
 
 ## Purpose
 
-This roadmap converts the locked AIRIV Sentinel concept, architecture, authority boundaries, verified production gates, and private/public distribution model into an implementation program.
+This roadmap sequences AIRIV Sentinel development without redefining its locked mission or authority model.
 
-The roadmap does **not** redefine the mission. It sequences capability work while preserving the canonical truth already established by contracts, frozen baseline records, implementation invariants, verified evidence, and the Project Lock documentation.
+**Canonical precedence:** `Contract > Implementation > Roadmap > Local Preference`.
 
-**Canonical precedence remains:**
+AIRIV Sentinel is the **Fail-closed Autonomous Commander** for the AIRIV development and runtime ecosystem. The human Commander retains final strategic authority.
 
-`Contract > Implementation > Roadmap > Local Preference`
+## Non-negotiable invariants
 
----
+Every roadmap slice MUST preserve:
 
-## Locked mission
+- fail-closed/default-deny behavior;
+- human Commander final strategic authority;
+- `RemediationPolicy` as sole canonical remediation ALLOW/DENY authority;
+- `ExecutionBoundary` as sole command-execution boundary;
+- independent verification for consequential effects;
+- `IncidentManager.resolve()` as sole terminal lifecycle mutation boundary;
+- durable evidence, execution identity, replay protection, and terminal `UNKNOWN` semantics where side effects are possible;
+- no blind retry of indeterminate effects;
+- AI output as untrusted execution/intelligence output, never semantic authority;
+- Sentinel remaining external to AIRIV Server, Event Bus, Job Worker, API, database authority, and business-domain authority;
+- private canonical source + curated public distribution topology;
+- production host effects separated from ordinary CI;
+- reporting/delivery surfaces remaining non-authoritative;
+- external delivery remaining disabled until transport-specific configuration and live proof are explicitly approved.
 
-AIRIV Sentinel is the **fail-closed Autonomous Commander** for the AIRIV development and runtime ecosystem.
+## Delivery model
 
-The human Commander retains final strategic authority. Sentinel may observe, diagnose, orchestrate workflows and AI agents, execute system actions, verify contracts, manage incidents, preserve evidence, and perform autonomous remediation only inside explicit policy, authorization, safety, identity, replay, blast-radius, and independent-verification boundaries.
+```text
+Locked requirement
+-> engineering branch
+-> focused tests
+-> security / docs / compile gates
+-> full regression
+-> curated-distribution validation
+-> canonical main
+-> separately authorized host/live proof when required
+-> curated OSS promotion
+```
 
-Capability never implies authority.
-
----
-
-## Non-negotiable roadmap invariants
-
-Every roadmap workstream MUST preserve all of the following:
-
-- Human Commander remains final strategic authority.
-- Production effects remain fail-closed and default-deny.
-- `RemediationPolicy` remains the sole canonical ALLOW/DENY authority.
-- `ExecutionBoundary` remains the sole command-execution boundary.
-- `IncidentManager.resolve()` remains the sole terminal incident lifecycle mutation boundary.
-- Verification remains independent; execution success alone is never recovery.
-- Consequential actions and outcomes remain evidence-backed, observable, reconstructable, and auditable.
-- AI output is an execution/intelligence resource, never semantic authority by itself.
-- Execution identity, exact-effect continuity, replay protection, and terminal `UNKNOWN` semantics remain mandatory where side effects are possible.
-- Indeterminate effects are never blindly retried.
-- Autonomous production remediation remains bounded by explicit target/action/cooldown/retry/blast-radius/verification contracts.
-- Sentinel remains external to AIRIV Server and does not replace AIRIV Server, API, database, Event Bus, Job Worker, or business-domain authority.
-- Any AIRIV Event+Job integration uses the canonical AIRIV Event+Job Foundation; Sentinel must not create a parallel event/job authority.
-- `AIRIV-Sentinel` remains the private canonical source.
-- `AIRIV-Sentinel-OSS` remains a curated public distribution, not a mirror of private Git history or private operational provenance.
-- Public publication remains explicit-allowlist, secret-scanned, disclosure-validated, and fail-closed.
-- Production-host deployment or live remediation remains separately authorized from ordinary source-code CI.
-
----
-
-## Execution model
-
-Roadmap delivery uses one continuous engineering path:
-
-`Locked requirement -> engineering branch -> focused tests -> security/docs/compile gates -> full regression -> curated-distribution validation -> canonical main -> separately authorized host/live proof when required -> curated OSS promotion`
-
-A roadmap item is not considered complete merely because code exists. Completion requires its acceptance evidence and preservation of the canonical boundaries above.
+A feature is not complete merely because code exists. Completion requires acceptance evidence and preservation of authority boundaries.
 
 ---
 
 ## Foundation Lock — COMPLETE
 
-### Objective
-
-Establish a stable, auditable starting point from the agreed concept and all subsequent approved changes.
-
-### Completed baseline
+Completed foundation:
 
 - Autonomous Commander mission locked.
-- V1 architecture frozen and change-controlled.
-- Incident lifecycle and final-outcome separation established.
-- Evidence trail established as operational truth.
-- Commander semantic and intent boundaries established.
-- Default-deny remediation policy established.
-- Exact execution and independent verification boundaries established.
-- Execution identity, replay protection, and terminal uncertain-outcome semantics established.
-- systemd 24/7 runtime established.
-- Controlled production remediation Gate 3 passed and locked.
-- Bounded autonomous production remediation Gate 4 established.
-- Trusted-host / CI privilege separation established.
-- Private canonical + curated public repository topology locked.
-- `README.md` + `index.html` project-lock documentation synchronized and security-gated.
-- Canonical and curated regression/security gates green at the roadmap baseline.
+- V1 architecture frozen/change-controlled.
+- centralized incident lifecycle and final-outcome separation;
+- deny-by-default remediation policy;
+- exact execution and independent verification;
+- durable execution identity/replay/terminal uncertain-outcome semantics;
+- 24/7 systemd runtime;
+- Gate 3 controlled production proof PASSED / LOCKED;
+- Gate 4 bounded production autonomy established;
+- trusted-host/CI privilege separation;
+- private canonical + curated public repository topology;
+- synchronized project-lock documentation and disclosure validation.
 
-### Exit condition
-
-**COMPLETE.** This baseline is the immutable conceptual input to subsequent roadmap work unless changed through explicit contract/change control.
+**Exit:** COMPLETE.
 
 ---
 
-## Operational Evidence & Commander UX — ACTIVE
+## Operational Evidence & Commander UX — CORE COMPLETE
+
+Completed vertical slices:
+
+- read-only `IncidentReportBuilder` for active and terminal state;
+- Commander-readable Markdown + immutable structured report;
+- stable evidence timeline and classification;
+- explicit Commander-attention derivation from canonical facts;
+- malformed evidence rejection;
+- runtime read-only report access;
+- durable `IncidentReportStore` with atomic persistence and SHA-256 integrity envelope;
+- strict identity/path validation and corrupt-state fail-closed behavior;
+- idempotent `IncidentReportRecorder` reconciliation;
+- append-retentive report persistence;
+- immediate first runtime reconciliation and maximum one sync per 60 seconds afterward;
+- nonfatal but visible reporting failures;
+- `UnattendedIncidentRollup` and chronological `CommanderAttentionQueue`;
+- timezone-aware start-inclusive/end-exclusive windows;
+- exact-field `CommanderDeliveryProjection` disclosure allowlist;
+- unreviewed schema drift rejected before transport projection.
+
+Verified state at closeout:
+
+- **225** focused production Commander-boundary tests PASS;
+- **2,154** full canonical regression tests PASS;
+- **2,138** full curated public regression tests PASS after public promotion;
+- security/history, patch hygiene, docs/disclosure, compile, curated build and public-main CI PASS.
+
+**Exit:** CORE COMPLETE. Durable unattended evidence can be summarized for Commander attention without becoming an authority-bearing subsystem.
+
+---
+
+## Commander Delivery Transport Foundation — COMPLETE
+
+Completed vertical slices:
+
+- explicit `CommanderDeliveryTransport` protocol;
+- disabled/no-send production default;
+- durable delivery identity ledger;
+- projection digest + destination + transport bound-effect continuity;
+- replay suppression;
+- terminal `SUCCEEDED`, `FAILED`, and `UNKNOWN` semantics;
+- no blind retry of terminal failure/uncertain outcome;
+- exception sanitization: type recorded, raw exception message not persisted;
+- delivery ledger excludes subject, body, raw incident evidence, and credentials;
+- `CommanderDeliveryOrchestrator` consumes only `CommanderDeliveryProjection`;
+- deterministic local file dry-run transport;
+- dry-run artifact atomic/no-overwrite semantics;
+- explicit `SentinelRuntime.deliver_commander_brief()`;
+- daemon `run_once()` proven not to auto-send.
+
+Verified state:
+
+- canonical full regression: **2,154 PASS**;
+- curated public full regression: **2,138 PASS**;
+- focused production Commander-boundary regression: **225 PASS**;
+- canonical main CI/Public Distribution PASS;
+- curated OSS sync branch and actual public `main` CI PASS.
+
+**Exit:** COMPLETE. A Commander brief can traverse the full delivery orchestration path using a non-network transport with durable identity, replay protection, fail-closed bound-effect continuity, and observable terminal semantics. No external recipient is contacted by this milestone.
+
+---
+
+## External Commander Delivery Adapter — DECISION-GATED
+
+This is deliberately separate from the completed transport foundation.
+
+Before email, webhook, chat, or another network adapter can be enabled, the following must be explicitly defined and reviewed:
+
+- exact delivery channel;
+- exact destination/recipient identity;
+- credential source and rotation boundary;
+- outbound network boundary;
+- retry/backoff limits;
+- provider acknowledgement semantics;
+- mapping of timeout/ambiguous acknowledgement to terminal `UNKNOWN`;
+- privacy/disclosure policy for projected content;
+- rate limits and duplicate suppression;
+- controlled live proof and independent verification;
+- explicit unattended-enable decision.
+
+No default network transport is permitted. Source deployment alone must never activate external delivery.
+
+**Status:** DECISION-GATED / DISABLED.
+
+---
+
+## Verified AI Agent Operations — ACTIVE
+
+Governing contract: `contracts/AIRIV_SENTINEL_AI_AGENT_EXECUTION_CONTRACT_V1.md` — LOCKED.
 
 ### Objective
 
-Turn Sentinel's existing incident/evidence machinery into an operational information surface that a Commander can trust during unattended and attended operation.
+Make AI-agent execution operationally useful while preserving Sentinel as the authority-bearing orchestrator and keeping providers replaceable.
 
-### Required capabilities
+### Active implementation sequence
 
-- Read-only incident report generation from canonical active and terminal incident state.
-- Commander-readable Markdown representation.
-- Structured JSON-compatible representation for later UI/API/notification adapters.
-- Evidence timeline with stable ordering.
-- Incident start/update time, anomaly identity, component/agent identity, lifecycle, final outcome, and evidence count.
-- Detection and understanding summary.
-- Diagnostic action summary.
-- Remediation action summary.
-- Independent verification result summary.
-- Commander-required decisions/handoffs surfaced explicitly.
-- Final status represented without inventing success.
-- Fail-closed behavior for malformed evidence.
-- Evidence indexing/retrieval without modifying Incident authority.
-- Durable unattended incident summaries suitable for future delivery adapters.
+1. Audit existing AI-agent execution modules/tests against the locked contract.
+2. Define provider-neutral `AgentRequest` identity and validation boundary.
+3. Define provider-neutral raw `AgentResult` and terminal execution states.
+4. Add bounded time, retry, and resource budgets.
+5. Add durable request/execution identity and replay semantics where consequential.
+6. Add independent result-verification boundary; model self-report is never proof.
+7. Record accepted/rejected result evidence without exposing credentials.
+8. Prove the complete flow with a deterministic non-network fake/local adapter.
+9. Only after the foundation is green, consider a provider-specific adapter through separate configuration/credential review.
 
-### Active vertical slice
+### Mandatory acceptance criteria
 
-`IncidentReportBuilder` is the first implementation slice.
+- request identifier, agent identifier, task identifier, requested operation, execution context, and authority context are explicit;
+- incomplete identity fails closed;
+- AI output cannot directly mutate Incident lifecycle;
+- AI output cannot authorize remediation or bypass policy/execution gates;
+- failure, timeout, cancellation, and uncertain result are never reported as success;
+- verifier is independent from AI output;
+- consequential AI proposals still use canonical policy -> execution -> verification;
+- evidence can reconstruct request -> agent -> execution -> result -> verification -> acceptance/rejection;
+- no single AI provider becomes canonical authority;
+- no live provider credential is required for the provider-neutral foundation.
 
-It MUST be:
+### Exit condition
 
-- read-only;
-- deterministic for a given incident snapshot;
-- defensive against caller mutation;
-- non-executing;
-- non-authorizing;
-- non-policy-making;
-- non-lifecycle-mutating;
-- usable for active and terminal incidents;
-- capable of rendering Commander-ready Markdown and structured data.
-
-### Acceptance criteria
-
-- Active incident can be rendered without changing canonical Incident state.
-- Terminal incident can be rendered from Incident history.
-- Recovery/verification evidence is visible in the report.
-- Escalated or explicit Commander-required evidence is visible as Commander attention.
-- Malformed evidence is rejected rather than silently omitted.
-- Report payload cannot be mutated through its read-only API.
-- Returned serializable copies are defensive.
-- Tests prove no command execution, no policy evaluation, and no lifecycle mutation is introduced by reporting.
-- Full canonical regression and curated-distribution validation remain green.
-
-### Follow-on slices
-
-- Runtime read-only report access.
-- Durable evidence index and incident lookup.
-- Unattended session/overnight rollup.
-- Commander attention queue derived only from canonical facts.
-- Notification adapters after the report schema and evidence retention rules are stable.
+A deterministic provider-neutral agent request can execute through the canonical AI-agent boundary, produce a raw result, be independently accepted/rejected, and leave reconstructable evidence without granting the AI any policy, lifecycle, contract, or remediation authority.
 
 ---
 
 ## Bounded Production Target Expansion — PLANNED
 
-### Objective
+Each additional autonomous production target requires its own explicit target identity, action allowlist, blast radius, cooldown, retry window, concurrency constraint, exact-effect continuity, independent post-effect verification, durable attempt evidence, and Commander-reviewed capability expansion where required.
 
-Expand autonomous remediation from the current deliberately narrow production profile without weakening safety.
-
-### Rules
-
-Each new target is treated as an independent capability expansion and requires:
-
-- explicit target identity;
-- explicit action allowlist;
-- bounded blast radius;
-- cooldown and retry-window policy;
-- concurrency constraints;
-- exact-effect fingerprint/continuity;
-- independent post-effect verification;
-- durable attempt/evidence continuity;
-- fail-closed behavior for incomplete facts;
-- explicit Commander approval for contract expansion where required.
-
-No generic "restart anything" or unrestricted system command authority is permitted.
-
-### Exit condition
-
-At least one additional low-blast-radius target is proven through the same contract -> policy -> execution -> verification -> evidence discipline without creating general host authority.
-
----
-
-## Verified AI Agent Operations — PLANNED
-
-### Objective
-
-Make AI-agent execution operationally useful while preserving Sentinel as the authority-bearing orchestrator.
-
-### Required capabilities
-
-- Provider-neutral execution adapter boundary.
-- Explicit request identity and evidence continuity.
-- Bounded time/retry/resource budgets.
-- Result verifier independent from model output.
-- Contract-aware acceptance/rejection of agent results.
-- Failure/timeout/cancellation represented explicitly.
-- No AI result may self-authorize remediation or change canonical contracts.
-- Provider credentials remain outside public source and evidence payloads.
-
-### Dependency
-
-Operational Evidence & Commander UX must provide sufficient reporting and evidence continuity before AI-agent operations are expanded.
+No generic restart-anything or unrestricted shell authority is permitted.
 
 ---
 
 ## Canonical AIRIV Event+Job Integration — DEPENDENCY-GATED
 
-### Objective
+Sentinel may integrate only with the canonical AIRIV Event+Job Foundation. It must not become or create a parallel Event Bus/Job Worker.
 
-Connect Sentinel to AIRIV asynchronous infrastructure without creating parallel authority.
+Required identity/correlation fields supplied by AIRIV must remain reconstructable, and at-least-once semantics require explicit idempotency behavior.
 
-### Required constraints
-
-- Consume the canonical AIRIV Event+Job Foundation contract only.
-- Preserve organization/actor/correlation/causation identity where supplied by AIRIV.
-- At-least-once behavior must be paired with explicit idempotency semantics.
-- Sentinel does not become AIRIV's Event Bus or Job Worker.
-- Incident/evidence correlation must remain reconstructable across the integration boundary.
-
-### Dependency
-
-This workstream starts only when the relevant AIRIV Event+Job adapter/interface is stable enough to consume without Sentinel inventing missing platform semantics.
+Work starts only when the relevant AIRIV platform adapter/interface is stable enough to consume without Sentinel inventing platform semantics.
 
 ---
 
 ## Packaging, Upgrade & Rollback — PLANNED
 
-### Objective
+Required future capabilities:
 
-Make installation and controlled evolution repeatable while preserving fail-closed host boundaries.
+- versioned release artifact;
+- deterministic install validation;
+- upgrade preflight;
+- atomic/recoverable upgrade path;
+- post-upgrade service verification;
+- explicit rollback path;
+- release provenance without public disclosure of private host state;
+- curated OSS release flow separate from private canonical provenance.
 
-### Required capabilities
-
-- Versioned packaging/release artifact.
-- Deterministic installation validation.
-- Upgrade preflight.
-- Atomic or recoverable upgrade path.
-- Verified service restart/health validation.
-- Explicit rollback path.
-- Release provenance without exposing private host state.
-- Curated OSS release flow separated from private canonical provenance.
-
-### Rule
-
-CI may coordinate release evidence but must not silently acquire general root/production authority.
+CI may coordinate evidence but must not gain general production/root authority.
 
 ---
 
 ## Fleet & Multi-host Control — LATER
 
-### Objective
+Preconditions include stable host identity, cross-host execution identity, durable evidence correlation, explicit authority delegation, host-scoped policy/blast radius, and recovery semantics for network partitions/uncertain remote effects.
 
-Extend Sentinel beyond a single-host trust model only after identity, evidence, and authority boundaries are strong enough to remain unambiguous across hosts.
-
-### Preconditions
-
-- Stable host identity contract.
-- Stable execution identity across host boundaries.
-- Durable evidence correlation.
-- Explicit authority delegation model.
-- Host-scoped policy and blast-radius enforcement.
-- Recovery semantics for network partitions and uncertain remote effects.
-
-No fleet control is introduced by merely adding remote shell access.
+Remote shell access alone is not fleet control.
 
 ---
 
 ## Observability, SLO & Recovery Hardening — CROSS-CUTTING
 
-### Objective
+Ongoing scope:
 
-Continuously improve confidence that Sentinel itself is healthy, observable, recoverable, and diagnosable.
-
-### Scope
-
-- Worker/daemon health.
-- Staleness and liveness signals.
-- Incident and remediation metrics.
-- Evidence-store health.
-- Queue/backlog visibility where applicable.
-- Restart/recovery behavior.
-- Failure injection and recovery tests.
-- Resource-use boundaries.
-- Upgrade/restart continuity.
-- Operational SLO definitions once measurements are trustworthy.
-
-This workstream does not bypass feature-specific acceptance gates; it strengthens them.
+- worker/daemon liveness and staleness;
+- incident/remediation metrics;
+- report-store/reconciliation health;
+- Commander attention backlog visibility;
+- delivery identity/backlog visibility;
+- AI execution queue/budget/verifier health when introduced;
+- failure injection and recovery tests;
+- resource-use boundaries;
+- upgrade/restart continuity;
+- SLO definitions once measurements are trustworthy.
 
 ---
 
-## Roadmap change control
+## Change control
 
-Changes are classified as:
+Changes are classified as documentation clarification, test hardening, contract-preserving bug fix, contract amendment, architecture change, or capability expansion.
 
-- documentation clarification;
-- test hardening;
-- bug fix preserving contracts;
-- contract amendment;
-- architecture change;
-- capability expansion.
+Contract amendments, architecture changes, new production effects, public/private disclosure changes, live external delivery, provider credential activation, and other irreversible/high-risk behavior require explicit Commander-level review before activation.
 
-Contract amendments, architecture changes, and capability expansions that change authority, production effects, public/private disclosure boundaries, or irreversible operational behavior require explicit Commander-level review/approval before those new powers become active.
-
-Routine implementation details that remain inside already-approved boundaries may proceed through the standard engineering and CI gates.
-
----
+Routine implementation inside locked boundaries proceeds through normal engineering and CI gates.
 
 ## Definition of Done
 
-A roadmap slice is **DONE** only when:
-
-- implementation matches the governing contract/invariant;
-- tests cover success and fail-closed paths;
-- patch hygiene passes;
-- security and credential/disclosure scans pass;
-- affected documentation is valid;
-- compilation passes;
-- focused boundary regressions pass where relevant;
-- full regression passes;
-- public-distribution validation passes for public-eligible content;
-- no hidden production effect is introduced by CI;
-- any required live proof is separately authorized and independently verified;
-- resulting evidence is sufficient to reconstruct what happened and why.
-
-"No known failing automated gate" is a valid verified state. "Bug-free forever" or "unhackable" is not a valid engineering claim.
-
----
+A slice is DONE only when implementation matches governing contracts, success and fail-closed tests exist, security/docs/compile gates pass, focused regressions pass where relevant, full regression passes, curated-public validation passes for public-eligible content, hidden production effects are absent, required live proof is separately authorized, and evidence can reconstruct what happened and why.
 
 ## Immediate execution order
 
-**ACTIVE NOW:** Operational Evidence & Commander UX.
+**ACTIVE NOW: Verified AI Agent Operations.**
 
-The first deliverable is the read-only unattended incident report boundary. After it is green on canonical and curated regression surfaces, development proceeds directly to runtime report access and durable evidence indexing before widening production autonomy or AI-agent authority surfaces.
+The next slice is a provider-neutral request/result/execution boundary with deterministic non-network proof. Provider selection, credentials, and live-provider execution remain separate configuration and authorization decisions.

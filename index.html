@@ -3,154 +3,72 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="AIRIV Sentinel curated public project lock report: fail-closed Autonomous Commander architecture, private/public domain topology, specifications, installation, security, and AIRIV Sentinel Roadmap foundation.">
+  <meta name="description" content="AIRIV Sentinel project lock and roadmap: Fail-closed Autonomous Commander, operational evidence, Commander delivery foundation, security boundaries, installation, and active AI-agent roadmap.">
   <meta name="color-scheme" content="dark">
   <title>AIRIV Sentinel — Curated Public Project Lock & Roadmap Foundation</title>
   <style>
-    :root{--bg:#090d16;--card:#0f172a;--card2:#111c31;--text:#f8fafc;--muted:#94a3b8;--accent:#38bdf8;--button:#fdba74;--good:#4ade80;--warn:#fbbf24;--danger:#fb7185;--border:rgba(148,163,184,.18);--shadow:0 24px 70px rgba(0,0,0,.30);--max:1180px}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 12% 0%,rgba(56,189,248,.10),transparent 30rem),radial-gradient(circle at 88% 8%,rgba(253,186,116,.08),transparent 26rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.62}
-    a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}code,pre{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}code{color:#bae6fd}.wrap{width:min(calc(100% - 32px),var(--max));margin:0 auto}.topbar{position:sticky;top:0;z-index:50;backdrop-filter:blur(18px);background:rgba(9,13,22,.88);border-bottom:1px solid var(--border)}.topbar .inner{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{font-weight:800;color:var(--text)}.brand span{color:var(--accent)}nav{display:flex;flex-wrap:wrap;gap:14px;font-size:.9rem}nav a{color:var(--muted)}
-    header.hero{padding:72px 0 34px}.eyebrow{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.14em;font-size:.78rem}h1{margin:10px 0 12px;font-size:clamp(2.6rem,7vw,5.5rem);line-height:.98;letter-spacing:-.055em}.lead{max-width:940px;color:#cbd5e1;font-size:clamp(1.05rem,2vw,1.3rem)}.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0 20px}.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:12px;padding:10px 15px;font-weight:750;background:var(--card);color:var(--text)}.btn.primary{background:var(--button);color:#2a1605;border-color:transparent}.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.badges img{height:20px}.notice{margin:24px 0 0;padding:17px 18px;border:1px solid rgba(56,189,248,.34);border-left:4px solid var(--accent);border-radius:14px;background:rgba(56,189,248,.07)}
-    main{padding-bottom:72px}section{padding:34px 0;scroll-margin-top:78px}h2{margin:0 0 12px;font-size:clamp(1.65rem,3vw,2.35rem);letter-spacing:-.03em}h3{margin-top:0;font-size:1.05rem}.sub{color:var(--muted);max-width:940px;margin-bottom:22px}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{grid-column:span 4;padding:20px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,rgba(15,23,42,.96),rgba(15,23,42,.82));box-shadow:var(--shadow)}.card.wide{grid-column:span 6}.card.full{grid-column:1/-1}.metric{font-size:1.85rem;font-weight:850;line-height:1.1;margin:4px 0 6px}.metric.good{color:var(--good)}.metric.accent{color:var(--accent)}.metric.warn{color:var(--warn)}.label{color:var(--muted);font-size:.88rem}.status{display:inline-flex;gap:7px;align-items:center;font-size:.8rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.dot{width:8px;height:8px;border-radius:99px;background:var(--good);box-shadow:0 0 14px rgba(74,222,128,.55)}
-    table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:table}th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--border)}th{color:#cbd5e1;font-size:.86rem;background:rgba(148,163,184,.05)}tr:last-child td{border-bottom:0}pre{margin:0;padding:18px;overflow-x:auto;border-radius:16px;border:1px solid var(--border);background:#070b12;color:#dbeafe;font-size:.88rem}.flow{border-left:3px solid var(--accent)}.pill-row{display:flex;flex-wrap:wrap;gap:8px}.pill{border:1px solid var(--border);background:rgba(148,163,184,.06);padding:7px 10px;border-radius:999px;color:#cbd5e1;font-size:.85rem}.kicker{color:var(--button);font-weight:800}ol,ul{padding-left:1.25rem}li+li{margin-top:6px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}.callout{padding:18px;border-radius:16px;background:rgba(253,186,116,.07);border:1px solid rgba(253,186,116,.24)}.callout strong{color:var(--button)}footer{border-top:1px solid var(--border);padding:30px 0 44px;color:var(--muted)}.tiny{font-size:.82rem;color:var(--muted)}
-    @media(max-width:900px){.card,.card.wide{grid-column:span 6}.two{grid-template-columns:1fr}nav{display:none}}@media(max-width:620px){.wrap{width:min(calc(100% - 22px),var(--max))}header.hero{padding-top:50px}.card,.card.wide{grid-column:1/-1}table{display:block;overflow-x:auto}}
+    :root{--bg:#090d16;--card:#0f172a;--text:#f8fafc;--muted:#94a3b8;--accent:#38bdf8;--button:#fdba74;--good:#4ade80;--warn:#fbbf24;--border:rgba(148,163,184,.18);--max:1180px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 12% 0%,rgba(56,189,248,.10),transparent 30rem),radial-gradient(circle at 88% 8%,rgba(253,186,116,.08),transparent 26rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}.wrap{width:min(calc(100% - 32px),var(--max));margin:auto}.top{position:sticky;top:0;z-index:20;background:rgba(9,13,22,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}.top .inner{min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{font-weight:850;color:var(--text)}.brand span{color:var(--accent)}nav{display:flex;gap:14px;flex-wrap:wrap;font-size:.88rem}nav a{color:var(--muted)}header{padding:64px 0 28px}.eyebrow{color:var(--accent);font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.13em}h1{font-size:clamp(2.8rem,7vw,5.6rem);line-height:.98;letter-spacing:-.05em;margin:10px 0 12px}.lead{color:#cbd5e1;max-width:950px;font-size:clamp(1.03rem,2vw,1.28rem)}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}.btn{display:inline-flex;padding:10px 15px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:750}.btn.primary{background:var(--button);border-color:transparent;color:#2a1605}.notice{margin-top:20px;padding:16px 18px;border:1px solid rgba(56,189,248,.34);border-left:4px solid var(--accent);border-radius:14px;background:rgba(56,189,248,.07)}main{padding-bottom:64px}section{padding:30px 0;scroll-margin-top:76px}h2{font-size:clamp(1.6rem,3vw,2.25rem);letter-spacing:-.025em;margin:0 0 10px}.sub{color:var(--muted);max-width:920px}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:15px;margin-top:20px}.card{grid-column:span 4;background:var(--card);border:1px solid var(--border);border-radius:17px;padding:19px}.card.wide{grid-column:span 6}.card.full{grid-column:1/-1}.metric{font-size:1.75rem;font-weight:850;margin:4px 0}.good{color:var(--good)}.accent{color:var(--accent)}.warn{color:var(--warn)}.label{font-size:.86rem;color:var(--muted)}table{width:100%;border-collapse:collapse;margin-top:18px;background:var(--card);border:1px solid var(--border)}th,td{padding:11px 13px;text-align:left;vertical-align:top;border-bottom:1px solid var(--border)}th{color:#cbd5e1}tr:last-child td{border-bottom:0}pre{overflow:auto;padding:16px;border:1px solid var(--border);border-radius:14px;background:#070b12;color:#dbeafe}code{color:#bae6fd}.pill{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:6px 9px;margin:3px;color:#cbd5e1;font-size:.83rem}.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}.callout{background:rgba(253,186,116,.07);border:1px solid rgba(253,186,116,.24);border-radius:15px;padding:17px}.callout strong{color:var(--button)}footer{border-top:1px solid var(--border);padding:28px 0 40px;color:var(--muted)}@media(max-width:850px){.card,.card.wide{grid-column:span 6}.two{grid-template-columns:1fr}nav{display:none}}@media(max-width:580px){.wrap{width:min(calc(100% - 22px),var(--max))}.card,.card.wide{grid-column:1/-1}}
   </style>
 </head>
 <body>
-  <div class="topbar"><div class="wrap inner"><a class="brand" href="#top">AIRIV <span>Sentinel</span></a><nav aria-label="Project sections"><a href="#snapshot">Snapshot</a><a href="#domains">Domains</a><a href="#evolution">Evolution</a><a href="#architecture">Architecture</a><a href="#specs">Specs</a><a href="#install">Install</a><a href="#security">Security</a><a href="#roadmap">Roadmap</a></nav></div></div>
-
-  <header class="hero" id="top"><div class="wrap">
-    <div class="eyebrow">Curated Public Project Lock · 2026-09-09 · AIRIV Sentinel Roadmap Foundation</div>
-    <h1>AIRIV Sentinel</h1>
-    <p class="lead"><strong>Fail-closed Autonomous Commander</strong> for the AIRIV development and runtime ecosystem — designed to observe, authorize, execute, independently verify, preserve evidence, manage incidents, and remediate only inside explicit authority boundaries.</p>
-    <div class="hero-actions"><a class="btn primary" href="README.md">Open README.md</a><a class="btn" href="contracts/AIRIV_SENTINEL_MISSION_CONTRACT_V1.md">Mission Contract</a><a class="btn" href="SECURITY.md">Security Policy</a></div>
-    <div class="badges" aria-label="Project badges">
-      <a href="https://github.com/arivonto/AIRIV-Sentinel-OSS/actions/workflows/ci.yml"><img alt="AIRIV Sentinel CI" src="https://github.com/arivonto/AIRIV-Sentinel-OSS/actions/workflows/ci.yml/badge.svg?branch=main"></a>
-      <img alt="Apache 2.0" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg">
-      <img alt="Python 3.14" src="https://img.shields.io/badge/Python-3.14-3776AB?logo=python&amp;logoColor=white">
-      <img alt="Linux" src="https://img.shields.io/badge/Platform-Linux-FCC624?logo=linux&amp;logoColor=000000">
-      <img alt="Fail Closed" src="https://img.shields.io/badge/Safety-Fail--Closed-critical">
-      <img alt="Bounded Autonomy" src="https://img.shields.io/badge/Autonomy-Bounded-orange">
-      <img alt="Canonical 2083 passed" src="https://img.shields.io/badge/Canonical%20Regression-2083%20passed-success">
-      <img alt="Public 2067 passed" src="https://img.shields.io/badge/Public%20Regression-2067%20passed-success">
-    </div>
-    <div class="notice"><strong>Curated public domain:</strong> this page is the public project-lock surface. Canonical private Git history, host-control material, runtime evidence, credentials, authorization material, and private release provenance are excluded.</div>
-    <div class="notice"><strong>Lock rule:</strong> this page and <code>README.md</code> summarize the current project for roadmap planning. Canonical authority remains in contracts, frozen baseline records, implementation invariants, and verified evidence. <strong>Contract &gt; Implementation &gt; Local Preference.</strong></div>
-  </div></header>
-
-  <main>
-    <section id="snapshot"><div class="wrap"><h2>Current project snapshot</h2><p class="sub">Active V1 / pre-release. The V1 architecture is frozen and change-controlled. Production proof, bounded autonomy, trusted-host control, curated distribution, and documentation-security work are explicit post-freeze changes.</p>
-      <div class="grid">
-        <article class="card"><div class="status"><span class="dot"></span>Canonical regression</div><div class="metric good">2,083</div><div class="label">full private/canonical regression tests</div></article>
-        <article class="card"><div class="status"><span class="dot"></span>Curated regression</div><div class="metric good">2,067</div><div class="label">full public curated regression tests</div></article>
-        <article class="card"><div class="status"><span class="dot"></span>Boundary</div><div class="metric good">225</div><div class="label">focused production Commander-boundary tests</div></article>
-        <article class="card"><div class="status"><span class="dot"></span>Architecture</div><div class="metric accent">FROZEN</div><div class="label">V1 baseline; explicit change control</div></article>
-        <article class="card"><div class="status"><span class="dot"></span>Gate 3</div><div class="metric good">LOCKED</div><div class="label">controlled real production proof passed</div></article>
-        <article class="card"><div class="status"><span class="dot"></span>Gate 4</div><div class="metric warn">BOUNDED</div><div class="label">autonomous production scope remains deliberately narrow</div></article>
-      </div>
-    </div></section>
-
-    <section id="domains"><div class="wrap"><h2>Repository domains — locked topology</h2><p class="sub">AIRIV Sentinel separates authoritative private engineering/provenance from the curated public source surface.</p>
-      <table><thead><tr><th>Project domain</th><th>Access</th><th>Role</th><th>Boundary</th></tr></thead><tbody>
-        <tr><td><code>AIRIV-Sentinel</code></td><td><strong>Private</strong></td><td>Canonical source</td><td>Authoritative source, contracts, tests, private operational provenance, internal release/deployment material, curated-distribution tooling.</td></tr>
-        <tr><td><code>AIRIV-Sentinel-OSS</code></td><td><strong>Public</strong></td><td>Curated open-source distribution</td><td>Reviewed allowlisted source/docs/tests, standard deployment material, public security/contribution files, <code>README.md</code>, and <code>index.html</code>.</td></tr>
-      </tbody></table>
-      <div style="height:16px"></div><div class="callout"><strong>Publication boundary:</strong> this public domain never receives canonical private Git ancestry, host-control material, runtime evidence, credentials, authorization material, or private release provenance.</div>
-    </div></section>
-
-    <section id="evolution"><div class="wrap"><h2>Concept evolution</h2><p class="sub">The concept progressed from continuous supervision to an Autonomous Commander by adding authority separation, verification, evidence, replay protection, bounded production autonomy, trusted-host isolation, and curated public distribution — not by granting unrestricted automation.</p>
-      <table><thead><tr><th>Stage</th><th>Agreement / change</th><th>Current lock</th></tr></thead><tbody>
-        <tr><td>Initial supervisor</td><td>Continuous monitoring of AIRIV development activity, terminal/tmux state, failures, and unattended operation.</td><td>Monitoring foundation retained.</td></tr>
-        <tr><td>24/7 daemon</td><td>systemd-backed continuous runtime, health, restart, and persistent supervision.</td><td>Operational runtime foundation.</td></tr>
-        <tr><td>Incident &amp; evidence</td><td>Incidents, diagnosis, actions, verification, and unattended timelines must be reconstructable.</td><td>Evidence is operational truth.</td></tr>
-        <tr><td>Remediation safety</td><td>Deny-by-default, policy-controlled remediation with independent verification and evidence.</td><td>Capability never equals authority.</td></tr>
-        <tr><td>Development authority</td><td>Commander retained strategic authority; ChatGPT became architecture + implementation authority; Gemini ceased to be a required development authority.</td><td>Development no longer depends on Gemini.</td></tr>
-        <tr><td>Autonomous Commander</td><td>System/workflow/AI execution, contract verification, incident lifecycle, terminal access, and autonomous remediation became the target mission.</td><td><strong>LOCKED mission.</strong></td></tr>
-        <tr><td>Execution identity</td><td>Replay protection and terminal uncertain-outcome semantics became mandatory.</td><td>No blind replay of indeterminate effects.</td></tr>
-        <tr><td>Gate 3</td><td>Controlled Commander-authorized real production-remediation proof.</td><td><strong>PASSED / LOCKED.</strong></td></tr>
-        <tr><td>Gate 4</td><td>Autonomous production remediation added only inside an exact bounded profile.</td><td><strong>BOUNDED.</strong></td></tr>
-        <tr><td>Trusted host</td><td>GitHub coordination separated from privileged host authority.</td><td>CI does not gain general root authority.</td></tr>
-        <tr><td>Two-domain distribution</td><td>Private canonical source separated from a clean curated public distribution.</td><td><strong>LOCKED publication topology.</strong></td></tr>
-        <tr><td>Dual-format docs</td><td><code>README.md</code> + <code>index.html</code> become synchronized project-lock surfaces.</td><td><strong>LOCKED roadmap input.</strong></td></tr>
-      </tbody></table>
-    </div></section>
-
-    <section id="architecture"><div class="wrap"><h2>Mission &amp; locked architecture</h2><p class="sub">The human Commander retains final strategic authority. Sentinel may autonomously act only inside explicitly permitted policy and safety envelopes.</p>
-      <div class="two"><pre class="flow">COMMANDER
-    ↓
+<div class="top"><div class="wrap inner"><a class="brand" href="#top">AIRIV <span>Sentinel</span></a><nav><a href="#snapshot">Snapshot</a><a href="#domains">Domains</a><a href="#evolution">Evolution</a><a href="#architecture">Architecture</a><a href="#specs">Specs</a><a href="#install">Install</a><a href="#security">Security</a><a href="#roadmap">Roadmap</a></nav></div></div>
+<header id="top"><div class="wrap">
+  <div class="eyebrow">Project Lock · 2026-09-09 · AIRIV Sentinel Roadmap</div>
+  <h1>AIRIV Sentinel</h1>
+  <p class="lead"><strong>Fail-closed Autonomous Commander</strong> for AIRIV development and runtime systems. The Commander remains final strategic authority; Sentinel acts only through explicit policy, exact execution, independent verification, durable evidence, and bounded autonomy.</p>
+  <div class="actions"><a class="btn primary" href="README.md">README.md</a><a class="btn" href="AIRIV_SENTINEL_ROADMAP.md">Roadmap</a><a class="btn" href="contracts/AIRIV_SENTINEL_MISSION_CONTRACT_V1.md">Mission Contract</a><a class="btn" href="SECURITY.md">Security</a></div>
+    <div class="notice"><strong>Curated public domain:</strong> this page is generated from the validated allowlisted public snapshot. Canonical private Git history, host-control material, runtime evidence, credentials, authorization material, and private release provenance are excluded.</div>
+    <div class="notice"><strong>Lock rule:</strong> project summaries are subordinate to contracts and verified implementation. <strong>Contract &gt; Implementation &gt; Local Preference.</strong></div>
+</div></header>
+<main>
+<section id="snapshot"><div class="wrap"><h2>Current project snapshot</h2><p class="sub">Canonical and curated-public source are synchronized through the completed Operational Evidence and Commander Delivery foundation. External network delivery remains disabled.</p><div class="grid">
+  <article class="card"><div class="label">Canonical full regression</div><div class="metric good">2,154</div><div class="label">private/canonical tests PASS</div></article>
+  <article class="card"><div class="label">Curated public regression</div><div class="metric good">2,138</div><div class="label">public OSS tests PASS</div></article>
+  <article class="card"><div class="label">Focused Commander boundary</div><div class="metric good">225</div><div class="label">production-boundary tests PASS</div></article>
+  <article class="card"><div class="label">Operational Evidence</div><div class="metric accent">CORE COMPLETE</div><div class="label">durable reports, rollup, attention queue</div></article>
+  <article class="card"><div class="label">Delivery Foundation</div><div class="metric accent">COMPLETE</div><div class="label">replay-safe local dry-run; default disabled</div></article>
+  <article class="card"><div class="label">External Delivery</div><div class="metric warn">DISABLED</div><div class="label">channel/destination decision-gated</div></article>
+</div></div></section>
+<section id="domains"><div class="wrap"><h2>Repository domains</h2><p class="sub">Private canonical engineering and curated public source are deliberately separate trust/disclosure domains.</p><table><thead><tr><th>Domain</th><th>Role</th><th>Boundary</th></tr></thead><tbody><tr><td><code>AIRIV-Sentinel</code></td><td>Private canonical</td><td>Contracts, source, tests, private operational/release/host provenance.</td></tr><tr><td><code>AIRIV-Sentinel-OSS</code></td><td>Curated public</td><td>Explicitly allowlisted reviewed source/docs/tests. No private Git-history mirror.</td></tr></tbody></table><div class="callout" style="margin-top:16px"><strong>Publication is capability-neutral:</strong> public source never grants runtime, production, host, Commander, or remediation authority.</div></div></section>
+<section id="evolution"><div class="wrap"><h2>Concept evolution</h2><p class="sub">Sentinel moved from observation to bounded autonomous command by adding explicit authority separation rather than unrestricted automation.</p><div class="grid"><article class="card wide"><h3>Foundation</h3><p>24/7 systemd runtime, canonical Incident lifecycle, evidence trail, deny-by-default remediation, exact execution, independent verification, execution identity, replay protection.</p></article><article class="card wide"><h3>Production proof</h3><p>Gate 3 controlled production effect passed/locked. Gate 4 autonomy remains deliberately bounded; no wildcard host authority.</p></article><article class="card wide"><h3>Operational evidence</h3><p>Durable incident reports, bounded reconciliation, unattended rollups, explicit Commander Attention Queue, and disclosure-safe transport projection.</p></article><article class="card wide"><h3>Delivery foundation</h3><p>Delivery identity, bound-effect continuity, terminal UNKNOWN semantics, disabled default transport, and deterministic non-network dry-run proof.</p></article></div></div></section>
+<section id="architecture"><div class="wrap"><h2>Authority architecture</h2><p class="sub">Capability never implies authority.</p><div class="two"><pre>COMMANDER
+  ↓
 SENTINEL AUTHORITY POLICY
-    ↓
+  ↓
 AUTHORIZED EXACT EFFECT
-    ↓
+  ↓
 EXECUTION
-    ↓
+  ↓
 INDEPENDENT VERIFICATION
-    ↓
+  ↓
 EVIDENCE
-    ↓
-INCIDENT OUTCOME</pre>
-        <article class="card full"><h3>Core capabilities</h3><div class="pill-row"><span class="pill">System Monitoring</span><span class="pill">System Execution</span><span class="pill">Workflow Execution</span><span class="pill">AI Agent Execution</span><span class="pill">Contract Verification</span><span class="pill">Incident Lifecycle</span><span class="pill">Evidence Trail</span><span class="pill">24/7 Daemon</span><span class="pill">Terminal Access</span><span class="pill">Authorized Remediation</span></div></article></div>
-      <div style="height:16px"></div><pre class="flow">Observation
+  ↓
+INCIDENT OUTCOME</pre><pre>Observation
 → Investigation
 → Diagnosis
 → CommanderSemanticPolicy
-→ CommanderIntentAssessment
 → CommanderIntentDecider
 → RemediationPolicy
-→ RemediationActionCatalog
-→ Execution
+→ ExecutionBoundary
 → Verification
 → FinalOutcomeMapper
-→ IncidentManager.resolve()</pre>
-    </div></section>
-
-    <section id="specs"><div class="wrap"><h2>Technical specifications</h2><div class="grid">
-      <article class="card wide"><h3>Runtime</h3><table><tbody><tr><th>Service</th><td><code>airiv-sentinel.service</code></td></tr><tr><th>Entrypoint</th><td><code>$REPO/venv/bin/python -m sentinel</code></td></tr><tr><th>Worker ID</th><td><code>sentinel.runtime</code></td></tr><tr><th>Cycle</th><td>1.0 second</td></tr><tr><th>Health stale threshold</th><td>30.0 seconds</td></tr><tr><th>Supervisor</th><td>systemd</td></tr><tr><th>Restart model</th><td>on failure</td></tr><tr><th>Logging</th><td>systemd journal</td></tr><tr><th>Umask</th><td><code>0027</code></td></tr></tbody></table></article>
-      <article class="card wide"><h3>Lifecycle &amp; identity</h3><pre>Incident:
-OPEN → INVESTIGATING → RESOLVED
-
-Execution identity:
-CLAIMED → RUNNING
-        → SUCCEEDED / FAILED / UNKNOWN</pre><p class="tiny"><code>UNKNOWN</code> is terminal. Command success alone never proves recovery.</p></article>
-      <article class="card wide"><h3>Remediation levels</h3><ul><li>L0 — Observe</li><li>L1 — Diagnose</li><li>L2 — Autonomous remediation inside an explicit bounded capability</li><li>L3 — Commander required</li></ul></article>
-      <article class="card wide"><h3>Production proof</h3><p><strong>Gate 3:</strong> PASSED / LOCKED controlled real-production proof.</p><p><strong>Gate 4:</strong> bounded autonomy with exact target/action binding, cooldown, retry budget, bounded concurrency, durable accounting, replay protection, and independent verification.</p></article>
-    </div></div></section>
-
-    <section id="install"><div class="wrap"><h2>Installation guide</h2><p class="sub">Standard installation is fail-closed and does not enable production autonomous remediation.</p><div class="grid">
-      <article class="card full"><h3>Requirements</h3><div class="pill-row"><span class="pill">Linux + systemd</span><span class="pill">Git</span><span class="pill">Python 3.14 + venv</span><span class="pill">Non-root service account</span></div></article>
-      <article class="card full"><h3>Clone and environment</h3><pre>git clone https://github.com/arivonto/AIRIV-Sentinel-OSS.git "$HOME/airiv/airiv-sentinel"
+→ IncidentManager.resolve()</pre></div><p><span class="pill">RemediationPolicy = ALLOW/DENY</span><span class="pill">ExecutionBoundary = executor</span><span class="pill">Verification = independent</span><span class="pill">IncidentManager.resolve = terminal mutation</span><span class="pill">AI = untrusted resource</span></p></div></section>
+<section id="specs"><div class="wrap"><h2>Runtime & evidence specifications</h2><div class="grid"><article class="card wide"><h3>Runtime</h3><ul><li>Python 3.14</li><li>Linux + systemd</li><li><code>python -m sentinel</code></li><li>1-second daemon cycle</li><li>30-second health stale threshold</li><li>journal logging</li></ul></article><article class="card wide"><h3>Unattended evidence</h3><ul><li>Report store integrity envelope</li><li>idempotent recorder</li><li>first sync immediate; then ≤1/60s</li><li>chronological rollup</li><li>explicit Commander attention only</li><li>fail-closed disclosure projection</li></ul></article><article class="card wide"><h3>Delivery identity</h3><pre>CLAIMED
+→ RUNNING
+→ SUCCEEDED / FAILED / UNKNOWN</pre><p>Projection digest, destination, and transport remain bound. Terminal uncertainty is not blindly retried.</p></article><article class="card wide"><h3>Delivery default</h3><p><strong class="warn">No network transport is active.</strong> The daemon never auto-delivers. A local dry-run transport exists only to prove orchestration safely.</p></article></div></div></section>
+<section id="install"><div class="wrap"><h2>Installation</h2><p class="sub">Standard installation preserves fail-closed defaults and does not activate production autonomy or external delivery.</p><pre>git clone https://github.com/arivonto/AIRIV-Sentinel-OSS.git "$HOME/airiv/airiv-sentinel"
 cd "$HOME/airiv/airiv-sentinel"
 python3.14 -m venv venv
 venv/bin/python -m pip install --upgrade pip
-venv/bin/python -m pip install -r requirements-dev.txt</pre></article>
-      <article class="card wide"><h3>Validate</h3><pre>PYTHONPATH=. venv/bin/python -m compileall -q sentinel tests
+venv/bin/python -m pip install -r requirements-dev.txt
+PYTHONPATH=. venv/bin/python -m compileall -q sentinel tests
 python scripts/validate_project_docs.py
 PYTHONPATH=. venv/bin/python -m pytest -q -p no:cacheprovider
-bash scripts/public_release_secret_scan.sh</pre></article>
-      <article class="card wide"><h3>Foreground run</h3><pre>PYTHONPATH=. venv/bin/python -m sentinel</pre><p class="tiny">Use for startup validation; stop with Ctrl+C.</p></article>
-      <article class="card wide"><h3>Dry-run systemd install</h3><pre>./scripts/install_systemd_service.sh \
-  --repo "$PWD" \
-  --python "$PWD/venv/bin/python"</pre></article>
-      <article class="card wide"><h3>Install + activate</h3><pre>sudo ./scripts/install_systemd_service.sh \
-  --apply \
-  --user "$USER" \
-  --repo "$PWD" \
-  --python "$PWD/venv/bin/python"
-sudo systemctl enable --now airiv-sentinel.service
-systemctl status airiv-sentinel.service --no-pager</pre></article>
-    </div></div></section>
-
-    <section id="security"><div class="wrap"><h2>Security boundary</h2><p class="sub">Source remains auditable while private host topology that is unnecessary for safe use is minimized.</p><div class="two">
-      <article class="card full"><h3>Repository controls</h3><ul><li>Fail-closed/default-deny remediation.</li><li>Minimal CI permissions.</li><li>High-confidence reachable-history credential scanning.</li><li>Secret-bearing filename rejection.</li><li>Curated public allowlist.</li><li>Markdown/HTML link and structure validation.</li><li>Documentation disclosure guard.</li><li>Independent private/public Git histories.</li><li>Exact-effect authorization and replay protection.</li><li>Independent post-effect verification.</li></ul></article>
-      <article class="card full"><h3>Never publish</h3><ul><li>Credentials, API keys, passwords, tokens, or private keys.</li><li>Private runtime evidence or production incident stores.</li><li>Private host-control/authorization material.</li><li>Unnecessary private host identities, state locations, trigger refs, or topology.</li><li>Exploit details in public issues or logs.</li></ul><p><a href="SECURITY.md">Read SECURITY.md</a></p></article>
-    </div><div style="height:16px"></div><div class="callout"><strong>No zero-bug claim:</strong> passing CI and security gates is strong evidence for the tested surface, not a mathematical guarantee against future defects or vulnerabilities.</div></div></section>
-
-    <section id="roadmap"><div class="wrap"><h2>AIRIV Sentinel Roadmap — locked foundation</h2><p class="sub">The roadmap must build on these settled boundaries unless an explicit strategic architecture decision changes them.</p><div class="two">
-      <article class="card full"><h3>Locked inputs</h3><ol><li>Sentinel is the AIRIV Autonomous Commander and remains external to AIRIV Server.</li><li>Commander retains final strategic authority.</li><li>Safety remains fail-closed/default-deny.</li><li>Remediation policy remains canonical ALLOW/DENY authority.</li><li>Execution remains centralized through the execution boundary.</li><li>Independent verification is required for consequential recovery claims.</li><li>Evidence remains observable, durable, reconstructable, and auditable.</li><li>AI agents are execution resources, not semantic authority.</li><li>Replay protection and terminal uncertain-outcome handling remain mandatory.</li><li>Autonomy expands only through explicit bounded target/action contracts.</li><li><code>AIRIV-Sentinel</code> remains Private / canonical source.</li><li><code>AIRIV-Sentinel-OSS</code> remains Public / curated open-source distribution.</li><li>Public synchronization remains allowlisted, fail-closed, secret-scanned, disclosure-validated, and history-separated.</li><li>Both domains maintain synchronized <code>README.md</code> + <code>index.html</code> surfaces.</li><li>No convenience automation may introduce broad cross-repository credentials or broaden production authority.</li></ol></article>
-      <article class="card full"><h3>Roadmap candidates — not commitments</h3><ul><li>Additional production targets with explicit per-target safety profiles.</li><li>Richer durable evidence indexing, retention, query, and unattended timelines.</li><li>Improved Commander handoff and unattended-incident summaries.</li><li>Verified AI-agent/provider integrations without semantic authority.</li><li>Canonical AIRIV Event + Job adapter integration.</li><li>Packaging, upgrade, rollback, and release hardening.</li><li>Controlled promotion of validated curated public snapshots.</li><li>Fleet/multi-host architecture after identity, authority, and evidence contracts.</li><li>Metrics, health, observability, and recovery improvements.</li></ul></article>
-    </div></div></section>
-  </main>
-
-  <footer><div class="wrap"><strong style="color:var(--text)">AIRIV Sentinel</strong> — observe, authorize, execute, verify, preserve evidence.<br><span class="tiny">Curated public project lock report · 2026-09-09 · Apache License 2.0 · Contract &gt; Implementation &gt; Local Preference.</span></div></footer>
+bash scripts/public_release_secret_scan.sh</pre><p>Standard service template: <a href="deployment/systemd/airiv-sentinel.service.in">airiv-sentinel.service.in</a>.</p></div></section>
+<section id="security"><div class="wrap"><h2>Security boundary</h2><p class="sub">Unknown or incomplete facts deny effects. Credentials and private operational provenance remain outside public reporting surfaces.</p><div class="grid"><article class="card"><div class="metric accent">FAIL CLOSED</div><div class="label">malformed/stale/mismatched/uncertain facts do not broaden authority</div></article><article class="card"><div class="metric accent">REPLAY SAFE</div><div class="label">execution and delivery identities prevent blind duplicate effects</div></article><article class="card"><div class="metric accent">DISCLOSURE SAFE</div><div class="label">exact-field projection and curated distribution guard public boundaries</div></article></div><p><a href="SECURITY.md">Open SECURITY.md</a></p></div></section>
+<section id="roadmap"><div class="wrap"><h2>AIRIV Sentinel Roadmap</h2><p class="sub">The next active engineering workstream is provider-neutral Verified AI Agent Operations. External email/webhook delivery remains decision-gated.</p><table><thead><tr><th>Workstream</th><th>Status</th><th>Next boundary</th></tr></thead><tbody><tr><td>Foundation Lock</td><td class="good">COMPLETE</td><td>change-controlled</td></tr><tr><td>Operational Evidence & Commander UX</td><td class="good">CORE COMPLETE</td><td>hardening only</td></tr><tr><td>Commander Delivery Transport Foundation</td><td class="good">COMPLETE</td><td>network adapter remains separate</td></tr><tr><td>External Commander Delivery Adapter</td><td class="warn">DECISION-GATED</td><td>channel + exact recipient + credential + live proof</td></tr><tr><td>Verified AI Agent Operations</td><td class="accent">ACTIVE</td><td>provider-neutral request/result/verifier + non-network proof</td></tr><tr><td>Bounded Production Target Expansion</td><td>PLANNED</td><td>one explicit low-blast-radius target at a time</td></tr><tr><td>AIRIV Event+Job integration</td><td>DEPENDENCY-GATED</td><td>canonical AIRIV adapter only</td></tr></tbody></table><div class="actions"><a class="btn primary" href="AIRIV_SENTINEL_ROADMAP.md">Open full roadmap</a><a class="btn" href="contracts/AIRIV_SENTINEL_AI_AGENT_EXECUTION_CONTRACT_V1.md">AI Agent Contract</a></div></div></section>
+</main>
+<footer><div class="wrap">AIRIV Sentinel · Apache-2.0 · Fail-closed Autonomous Commander · Project lock updated 2026-09-09.</div></footer>
 </body>
 </html>

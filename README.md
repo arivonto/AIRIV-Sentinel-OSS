@@ -11,57 +11,38 @@
 ![Runtime systemd](https://img.shields.io/badge/Runtime-systemd-5C2D91?logo=linux&logoColor=white)
 ![Safety Fail Closed](https://img.shields.io/badge/Safety-Fail--Closed-critical)
 ![Autonomy Bounded](https://img.shields.io/badge/Autonomy-Bounded-orange)
-![Canonical Regression](https://img.shields.io/badge/Canonical%20Regression-2083%20passed-success)
-![Public Regression](https://img.shields.io/badge/Public%20Regression-2067%20passed-success)
+![Canonical Regression](https://img.shields.io/badge/Canonical%20Regression-2154%20passed-success)
+![Public Regression](https://img.shields.io/badge/Public%20Regression-2138%20passed-success)
 ![Status Pre-release](https://img.shields.io/badge/Status-Pre--release-yellow)
 
 ## Project description
 
-AIRIV Sentinel is a security-first autonomous operations commander for the AIRIV development and runtime ecosystem. It continuously observes system and workflow state, executes authorized actions, supervises AI-agent execution, verifies behavior against canonical contracts, manages incidents, preserves auditable evidence, operates as a 24/7 daemon, and performs autonomous remediation only inside explicit authority and safety boundaries.
+AIRIV Sentinel is a security-first autonomous operations commander for AIRIV development and runtime systems. It observes runtime state, manages incidents, preserves auditable evidence, executes only explicitly authorized effects, independently verifies consequential outcomes, and performs autonomous remediation only inside bounded policy and safety contracts.
 
-**GitHub project description**
+**Project state:** active V1 / pre-release. The V1 architecture is frozen and change-controlled. Post-freeze capabilities are accepted only when canonical authority, evidence, replay, verification, lifecycle, and disclosure boundaries remain intact.
 
-`Fail-closed autonomous operations commander for monitoring, incident management, policy-controlled remediation, verification, and auditable evidence.`
+**Canonical precedence:** `Contract > Implementation > Local Preference`.
 
-**Project state:** active V1 / pre-release. The V1 architecture is frozen and change-controlled. Post-freeze capability changes are valid only when they preserve canonical authority, safety, verification, evidence, and lifecycle boundaries.
+## Repository topology — LOCKED
 
----
-
-## Repository domain topology — LOCKED
-
-AIRIV Sentinel intentionally uses two GitHub project domains:
-
-| Project domain | Access | Role | Content boundary |
+| Domain | Access | Role | Boundary |
 | --- | --- | --- | --- |
-| `AIRIV-Sentinel` | **Private** | **Canonical source** | Authoritative engineering source, canonical contracts, implementation, tests, private operational provenance, internal release/deployment material, and curated-distribution tooling |
-| `AIRIV-Sentinel-OSS` | **Public** | **Curated open-source distribution** | Reviewed source, public contracts/docs, tests, standard deployment material, `README.md`, `index.html`, security/contribution files, and explicitly allowlisted content |
+| `AIRIV-Sentinel` | Private | Canonical source | Authoritative contracts, implementation, tests, private operational provenance, host/deployment control material, release tooling |
+| `AIRIV-Sentinel-OSS` | Public | Curated open-source distribution | Explicitly allowlisted reviewed source, public contracts/docs/tests, standard deployment material, `README.md`, `index.html` |
 
-Locked publication rules:
+The public project is **not** a mirror of private Git history. Publication is allowlist-based, secret-scanned, disclosure-validated, and fail-closed. Publishing source grants no runtime, production, Commander, or remediation authority.
 
-1. `AIRIV-Sentinel` remains private and authoritative.
-2. `AIRIV-Sentinel-OSS` is never produced by changing the canonical repository visibility.
-3. Canonical private Git ancestry, private refs/tags, host-control material, private runtime evidence, credentials, authorization files, and private release provenance are not mirrored into this public domain.
-4. Public synchronization is **allowlist-based and fail-closed**.
-5. Both domains carry synchronized project-level `README.md` and `index.html`; this public copy is curated for the public security boundary.
-6. Publishing source never grants runtime, production, host, Commander, or remediation authority.
+## Current project lock — 2026-09-09
 
-This two-domain model is a locked input to **AIRIV Sentinel Roadmap**.
-
----
-
-## Current project lock
-
-- **Documentation lock date:** 2026-09-09
 - **Target capability:** Autonomous Commander
-- **Canonical domain:** `AIRIV-Sentinel` — Private / canonical source
-- **Public domain:** `AIRIV-Sentinel-OSS` — Public / curated open-source distribution
-- **License:** Apache License 2.0
-- **Primary implementation language:** Python 3.14
-- **Primary runtime platform:** Linux + systemd
-- **Canonical validation:** 225 focused production-boundary tests + **2,083** full regression tests
-- **Curated OSS validation:** 225 focused production-boundary tests + **2,067** public regression tests
+- **Primary runtime:** Linux + systemd
+- **Primary language:** Python 3.14
+- **Canonical validation:** **225 focused + 2,154 full regression tests**
+- **Curated OSS validation:** **225 focused + 2,138 full regression tests**
+- **Canonical source head validated before this documentation closeout:** `20345b9ca323ca0527e12d680a627d1c750d13ea`
+- **Curated OSS source head validated:** `ce4412d9082025fb0858979a60d75607a2d0122d`
 
-| Area | Locked/current state |
+| Area | Current state |
 | --- | --- |
 | Mission | **LOCKED** — AIRIV Sentinel is the Autonomous Commander |
 | Strategic authority | **LOCKED** — human Commander retains final strategic authority |
@@ -70,244 +51,210 @@ This two-domain model is a locked input to **AIRIV Sentinel Roadmap**.
 | Incident lifecycle | Centralized, monotonic, evidence-driven |
 | Execution | Exact authorized effect only |
 | Verification | Independent; execution success alone is never recovery |
-| Evidence | Consequential facts remain observable and auditable |
-| Gate 3 | **PASSED / LOCKED** controlled Commander-authorized production proof |
+| Operational Evidence & Commander UX | **CORE COMPLETE** |
+| Commander Delivery Transport Foundation | **COMPLETE** — non-network dry-run proof, default transport disabled |
+| External email/webhook delivery | **DECISION-GATED / DISABLED** |
+| Verified AI Agent Operations | **ACTIVE** — provider-neutral foundation next |
+| Gate 3 | **PASSED / LOCKED** |
 | Gate 4 | **BOUNDED** autonomous production-remediation profile |
-| Host automation | Narrow trusted-host control plane; no general CI root authority |
-| Distribution | Private canonical source + curated public source; no private-history mirroring |
-| Release | Pre-release; stable public release/tag remains a separate milestone |
+| Distribution | Private canonical + curated public source; no private-history mirroring |
+| Release | Pre-release; stable release/tag remains separate |
 
-`README.md` and `index.html` are synchronized project-lock summaries used to prepare **AIRIV Sentinel Roadmap**. Normative authority remains in `contracts/`, frozen baseline records, implementation invariants, and verified evidence.
-
----
-
-## Source-of-truth precedence
-
-```text
-Canonical contracts
-    ↓
-Frozen baseline / explicit change-control records
-    ↓
-Current implementation + behavioral tests + CI evidence
-    ↓
-README.md / index.html project summaries
-    ↓
-Local preference
-```
-
-> **Contract > Implementation > Local Preference**
-
-If a project summary conflicts with a canonical contract, implementation invariant, or verified evidence, the summary must be corrected. A conflict must never be silently normalized.
-
----
-
-## Concept evolution — initial agreement to current lock
-
-AIRIV Sentinel evolved from continuous supervision into an Autonomous Commander by adding authority separation, verification, execution identity, evidence, replay protection, bounded production autonomy, and a clean public-distribution boundary. It did **not** evolve into unrestricted automation.
-
-| Evolution stage | Agreed / changed | Current interpretation |
-| --- | --- | --- |
-| Initial supervisor concept | Continuous observation of AIRIV development activity, terminal/tmux state, failures, and unattended operation | Retained as monitoring foundation |
-| 24/7 daemon foundation | systemd-backed continuous runtime, health, restart behavior, and persistent supervision | Retained and operationalized |
-| Incident + evidence foundation | Incidents, diagnosis, actions, verification, and unattended timelines must be reconstructable | Evidence is operational truth |
-| Remediation boundary | Remediation became deny-by-default, policy-controlled, verification-backed, and evidence-producing | Capability does not equal authority |
-| Authority consolidation | Commander remains strategic authority; ChatGPT became AIRIV architecture + implementation authority; Gemini ceased to be a required development authority | Development flow no longer depends on Gemini |
-| Autonomous Commander mission | System execution, workflow execution, AI-agent execution, contract verification, incident lifecycle, terminal access, and autonomous remediation became the target mission | **LOCKED target capability** |
-| Commander orchestration | Semantic policy, intent, remediation policy, execution, verification, final outcome, and lifecycle mutation were separated into explicit authorities | Prevents duplicated/hidden authority |
-| Execution identity | Consequential attempts gained durable identity, replay protection, and terminal uncertain-outcome semantics | Blind replay is prohibited |
-| Gate 3 | Controlled real production remediation was proven through exact Commander authorization and independent verification | **PASSED / LOCKED** |
-| Gate 4 | Autonomous production remediation was introduced only inside a deliberately narrow safety profile | **BOUNDED**, not general root autonomy |
-| Trusted-host automation | GitHub coordination was separated from privileged host authority | CI does not inherit production authority |
-| Two-domain distribution | Private canonical source and clean curated OSS distribution were separated | **LOCKED publication topology** |
-| Documentation/security hardening | Public docs minimize unnecessary host topology and CI guards detect regression | Required for roadmap/release work |
-| Dual-format synchronization | `README.md` and `index.html` are maintained in canonical source and curated for public distribution | **LOCKED documentation surface** |
-
----
+See the implementation sequence in [AIRIV Sentinel Roadmap](AIRIV_SENTINEL_ROADMAP.md).
 
 ## Mission and authority
 
-Canonical mission contract: [`contracts/AIRIV_SENTINEL_MISSION_CONTRACT_V1.md`](contracts/AIRIV_SENTINEL_MISSION_CONTRACT_V1.md).
+Canonical mission: [AIRIV Sentinel Mission Contract V1](contracts/AIRIV_SENTINEL_MISSION_CONTRACT_V1.md).
 
-### Core capabilities
-
-1. System Monitoring
-2. System Execution
-3. Workflow Execution
-4. AI Agent Execution
-5. Contract Verification
-6. Incident Lifecycle Management
-7. Evidence Trail
-8. 24/7 Daemon Operation
-9. Full System Terminal Access
-10. Authorized Autonomous Remediation
-
-### Authority chain
+Authority chain:
 
 ```text
 COMMANDER
-    ↓
-SENTINEL AUTHORITY POLICY
-    ↓
-AUTHORIZED EXACT EFFECT
-    ↓
-EXECUTION
-    ↓
-INDEPENDENT VERIFICATION
-    ↓
-EVIDENCE
-    ↓
-INCIDENT OUTCOME
+  -> SENTINEL AUTHORITY POLICY
+  -> AUTHORIZED EXACT EFFECT
+  -> EXECUTION
+  -> INDEPENDENT VERIFICATION
+  -> EVIDENCE
+  -> INCIDENT OUTCOME
 ```
 
-The human Commander retains final strategic authority. Sentinel may act autonomously only inside an explicitly permitted policy and safety envelope. Technical access to shell, systemd, Git, filesystems, containers, databases, or other resources never grants semantic authority by itself.
+Core rules:
 
----
+- Human Commander retains final strategic authority.
+- `RemediationPolicy` is the canonical remediation ALLOW/DENY authority.
+- `ExecutionBoundary` is the sole command-execution boundary.
+- Independent verification is required for consequential success claims.
+- `IncidentManager.resolve()` is the sole terminal incident lifecycle mutation boundary.
+- AI output is an execution/intelligence resource, never semantic authority by itself.
+- Unknown, malformed, stale, mismatched, unauthorized, exhausted, or indeterminate effects fail closed.
+- Terminal uncertain outcomes are not blindly retried.
 
-## Locked architecture and workflow
+## Canonical engineering flow
 
 ```text
 Observation
-→ Investigation
-→ Diagnosis
-→ CommanderSemanticPolicy
-→ CommanderIntentAssessment
-→ CommanderIntentDecider
-→ RemediationPolicy
-→ RemediationActionCatalog
-→ Execution
-→ Verification
-→ FinalOutcomeMapper
-→ IncidentManager.resolve()
+-> Investigation
+-> Diagnosis
+-> CommanderSemanticPolicy
+-> CommanderIntentAssessment
+-> CommanderIntentDecider
+-> RemediationPolicy
+-> RemediationActionCatalog
+-> Execution
+-> Verification
+-> FinalOutcomeMapper
+-> IncidentManager.resolve()
 ```
-
-### Exclusive authority boundaries
-
-| Boundary | Exclusive responsibility |
-| --- | --- |
-| Investigation | Incident investigation lifecycle |
-| DiagnosisEvaluator | Diagnosis evaluation |
-| CommanderSemanticPolicy | Semantic remediation facts |
-| CommanderIntentDecider | Commander intent decision |
-| RemediationPolicy | Canonical remediation **ALLOW / DENY** authority |
-| RemediationActionCatalog | Action availability and command metadata only |
-| ExecutionBoundary | Sole command executor |
-| Verification | Independent post-effect proof |
-| FinalOutcomeMapper | Sole final-outcome mapping |
-| IncidentManager.resolve() | Sole terminal lifecycle mutation authority |
-| CommanderHandoff | Context/handoff only; no policy, execution, or terminal lifecycle authority |
 
 No duplicate policy evaluation, execution, verification, or terminal lifecycle mutation is permitted.
 
-### Non-negotiable invariants
-
-- Unknown, malformed, stale, mismatched, unauthorized, concurrent, exhausted, or unsupported conditions fail closed.
-- Execution success is not equivalent to recovery.
-- AI-agent output is untrusted execution input until independently verified.
-- Evidence is operational truth, not optional logging.
-- Sentinel must never manufacture Commander approval.
-- Exact targets must never silently broaden into wildcard authority.
-- Uncertain execution outcomes must not be blindly replayed.
-- Sentinel remains external to AIRIV Server and must not replace its API, database authority, Event Bus, Job Worker, or business modules.
-
----
-
 ## Runtime specification
 
-Canonical service: `airiv-sentinel.service`
-
-Canonical package entrypoint:
+Canonical entrypoint:
 
 ```text
 $REPO/venv/bin/python -m sentinel
 ```
 
-| Runtime property | Current value |
+| Property | Value |
 | --- | --- |
 | Worker ID | `sentinel.runtime` |
 | Worker name | `Sentinel runtime` |
 | Worker version | `1` |
-| Daemon cycle interval | `1.0` second |
+| Daemon cycle | `1.0` second |
 | Health stale threshold | `30.0` seconds |
 | Process manager | systemd |
 | Service restart | `Restart=on-failure`, `RestartSec=5` |
-| Shutdown | `SIGTERM`, bounded stop timeout |
 | Logging | systemd journal |
-| Service umask | `0027` |
-| V1 CLI surface | No broad runtime options; composition is explicit |
+| Standard umask | `0027` |
 
-Standard service template: [`deployment/systemd/airiv-sentinel.service.in`](deployment/systemd/airiv-sentinel.service.in).
+Standard template: [airiv-sentinel.service.in](deployment/systemd/airiv-sentinel.service.in).
 
----
+## Operational Evidence & Commander UX — CORE COMPLETE
 
-## Incident lifecycle, evidence, and execution identity
-
-Canonical incident progression is monotonic:
+The unattended reporting stack now forms a read-only, derived operational surface:
 
 ```text
-OPEN → INVESTIGATING → RESOLVED
+IncidentManager
+-> IncidentReportBuilder
+-> IncidentReportStore
+-> IncidentReportRecorder
+-> bounded runtime reconciliation
+-> UnattendedIncidentRollup
+-> CommanderAttentionQueue
+-> CommanderDeliveryProjection
 ```
 
-Operational outcomes may include `RECOVERED`, `UNRESOLVED`, `ESCALATED`, or `INSUFFICIENT_EVIDENCE` according to the applicable boundary. A normal observation must never silently erase an existing incident.
+Locked behavior:
 
-For unattended operation, evidence must be sufficient to reconstruct incident identity/timing, observations, investigation, diagnosis, authorization, remediation actions, independent verification, Commander-required decisions, and final operational status.
+- active and terminal incidents are reportable without lifecycle mutation;
+- reports are atomically persisted with integrity metadata;
+- unsafe report identities and corrupt persisted state fail closed;
+- reconciliation is idempotent and append-retentive;
+- runtime reconciliation occurs immediately once, then at most once every 60 seconds;
+- reporting errors are visible but cannot disable monitoring/remediation;
+- Commander Attention Queue contains only canonical facts explicitly marked for Commander attention;
+- delivery projection uses an exact-field disclosure allowlist;
+- raw evidence snapshots, command/output details, credentials, tokens, and unreviewed future schema fields do not cross the delivery projection boundary.
 
-Consequential execution identity follows durable replay-safe semantics:
+## Commander Delivery Transport Foundation — COMPLETE
+
+The delivery foundation proves the entire side-effect lifecycle without contacting an external recipient:
 
 ```text
-CLAIMED → RUNNING → SUCCEEDED / FAILED / UNKNOWN
+CommanderDeliveryProjection
+-> delivery identity claim
+-> bound destination + transport continuity
+-> RUNNING
+-> transport
+-> SUCCEEDED / FAILED / UNKNOWN
+-> durable replay-safe outcome
 ```
 
-`UNKNOWN` is terminal. An indeterminate effect is not automatically retried merely because a clean response was not observed.
+Implemented guarantees:
 
----
+- transport interface is explicit;
+- production default is disabled/no-send;
+- delivery identities are durable and replay-safe;
+- projection digest + destination + transport identity are bound together;
+- terminal `FAILED` and `UNKNOWN` states are not blindly retried;
+- transport exceptions store exception type only, not exception text;
+- delivery ledger does not persist subject/body/raw incident evidence/credentials;
+- deterministic local file dry-run proves end-to-end orchestration without network access;
+- dry-run artifacts are atomic and never overwritten;
+- `SentinelRuntime.deliver_commander_brief()` is explicit;
+- daemon `run_once()` does **not** auto-send.
+
+**External network delivery is not enabled.** Email/webhook adapters require an explicit channel, exact destination/recipient, credential handling, retry/failure semantics, privacy rules, and a separately controlled live proof.
+
+## Verified AI Agent Operations — ACTIVE
+
+The governing [AI Agent Execution Contract V1](contracts/AIRIV_SENTINEL_AI_AGENT_EXECUTION_CONTRACT_V1.md) is locked and provider-neutral.
+
+Immediate implementation target:
+
+```text
+AgentRequest
+-> provider-neutral AgentExecutionBoundary
+-> AI execution resource
+-> raw AgentResult
+-> independent Sentinel verification
+-> evidence
+-> accepted/rejected result
+```
+
+Required properties:
+
+- explicit request, agent, and task identities;
+- bounded time/retry/resource budgets;
+- provider-neutral adapter boundary;
+- failure/timeout/cancellation remain observable;
+- result verification is independent from model output;
+- AI-proposed consequential actions still pass through canonical policy, execution, and verification boundaries;
+- no provider credential or live-provider activation is implied by the foundation work.
 
 ## Remediation levels
 
 | Level | Meaning |
 | --- | --- |
-| **L0 — OBSERVE** | Read-only observation |
-| **L1 — DIAGNOSE** | Investigation and evidence collection |
-| **L2 — AUTONOMOUS REMEDIATION** | Policy-controlled effect inside an explicit bounded capability |
-| **L3 — COMMANDER REQUIRED** | Consequential effect requires explicit Commander authority |
+| L0 — OBSERVE | Read-only observation |
+| L1 — DIAGNOSE | Investigation and evidence collection |
+| L2 — AUTONOMOUS REMEDIATION | Explicit policy-controlled effect inside bounded capability |
+| L3 — COMMANDER REQUIRED | Consequential effect requires Commander authority |
 
-### Gate 3 — controlled production proof
+Gate 3 is **PASSED / LOCKED**. Gate 4 remains **BOUNDED** and does not create wildcard targets, general root automation, fabricated approval, or blind retry of indeterminate effects.
 
-Gate 3 is **PASSED / LOCKED**. It proved a real dedicated production-remediation probe through exact Commander authorization, single-use continuity, execution, independent verification, evidence, and incident recovery.
+## GitHub Actions and host authority
 
-### Gate 4 — bounded autonomous remediation
+Repository validation and privileged host effects are separate trust domains:
 
-Gate 4 extends autonomy only through a narrow production-remediation profile enforcing exact target/action binding, cooldown, retry budget, bounded attempts/concurrency, durable accounting, replay protection, independent verification, and fail-closed behavior for unknown or indeterminate states.
+```text
+Repository change
+-> GitHub Actions validation
+-> CI PASS
+-> canonical main
+-> separately authorized host/live workflow when required
+-> trusted host boundary
+-> independent verification
+-> evidence
+```
 
-Gate 4 does **not** create general root automation, wildcard targets, alternate effect verbs, fabricated Commander approval, or automatic retry of uncertain outcomes.
-
-Private host enablement locations, dedicated runner identities, bridge/state paths, command-trigger refs, and production evidence locations are intentionally omitted from this public documentation.
-
----
-
-## Requirements
-
-- Linux with systemd
-- Git
-- Python **3.14** with `venv` support
-- non-root service account
-- `sudo` only for explicitly reviewed service installation/administration
-
-Development dependencies are defined in [`requirements-dev.txt`](requirements-dev.txt).
-
----
+An ordinary push does not itself authorize a production effect.
 
 ## Installation guide
 
-Standard installation preserves fail-closed defaults and does **not** enable production autonomous remediation.
+Standard installation preserves fail-closed defaults. It does **not** enable autonomous production remediation or external Commander delivery.
 
-### 1. Clone
+### Clone
 
 ```bash
 git clone https://github.com/arivonto/AIRIV-Sentinel-OSS.git "$HOME/airiv/airiv-sentinel"
 cd "$HOME/airiv/airiv-sentinel"
 ```
 
-### 2. Create the Python environment
+The curated public distribution transforms this repository reference to `AIRIV-Sentinel-OSS`.
+
+### Environment
 
 ```bash
 python3.14 -m venv venv
@@ -315,7 +262,9 @@ venv/bin/python -m pip install --upgrade pip
 venv/bin/python -m pip install -r requirements-dev.txt
 ```
 
-### 3. Validate the checkout
+Dependencies are defined in [requirements-dev.txt](requirements-dev.txt).
+
+### Validate
 
 ```bash
 PYTHONPATH=. venv/bin/python -m compileall -q sentinel tests
@@ -324,182 +273,36 @@ PYTHONPATH=. venv/bin/python -m pytest -q -p no:cacheprovider
 bash scripts/public_release_secret_scan.sh
 ```
 
-### 4. Optional foreground validation
+### Foreground smoke run
 
 ```bash
 PYTHONPATH=. venv/bin/python -m sentinel
 ```
 
-Stop with `Ctrl+C` after confirming startup behavior.
+### systemd
 
-### 5. Dry-run the systemd installation
+Use the reviewed standard service template and deployment tooling for the target host. Production remediation and any future external-delivery enablement remain separate reviewed operations.
 
-```bash
-./scripts/install_systemd_service.sh \
-  --repo "$PWD" \
-  --python "$PWD/venv/bin/python"
-```
+## Security boundary
 
-### 6. Install the service
+See [SECURITY.md](SECURITY.md).
 
-After reviewing the dry run:
+AIRIV Sentinel assumes that credentials, authorization state, production evidence, private host topology, and private release/deployment provenance are not public documentation. CI and curated-public validation guard against accidental disclosure.
 
-```bash
-sudo ./scripts/install_systemd_service.sh \
-  --apply \
-  --user "$USER" \
-  --repo "$PWD" \
-  --python "$PWD/venv/bin/python"
-```
+## Roadmap lock
 
-### 7. Activate and verify
+The [AIRIV Sentinel Roadmap](AIRIV_SENTINEL_ROADMAP.md) is change-controlled. The following remain non-negotiable:
 
-```bash
-sudo systemctl enable --now airiv-sentinel.service
-systemctl status airiv-sentinel.service --no-pager
-journalctl -u airiv-sentinel.service -f
-```
-
-Do not create or enable production-remediation authorization/configuration merely to “turn autonomy on.” Production enablement is an explicit operational-security milestone governed by the applicable approved contract/runbook.
-
----
-
-## Development and verification workflow
-
-```text
-Contract / architecture decision
-        ↓
-engineering/** branch
-        ↓
-small complete implementation slice
-        ↓
-focused behavioral tests
-        ↓
-integration / affected-boundary regression
-        ↓
-full regression + security/history scan + documentation guard
-        ↓
-canonical GitHub Actions PASS
-        ↓
-canonical main
-        ↓
-curated public snapshot validation
-        ↓
-AIRIV-Sentinel-OSS promotion
-        ↓
-public GitHub Actions PASS
-        ↓
-separately authorized host deployment/live validation when required
-        ↓
-runtime verification + evidence
-```
-
-### CI gates
-
-| Surface | Focused tests | Full regression | Additional gates |
-| --- | ---: | ---: | --- |
-| `AIRIV-Sentinel` canonical | 225 | **2,083** | secret/history, docs, compile, curated-distribution packaging |
-| `AIRIV-Sentinel-OSS` curated | 225 | **2,067** | secret/history, docs, compile |
-
-CI passing is strong evidence for the tested boundaries; it is **not a mathematical guarantee that no future defect or vulnerability can exist**. Security-sensitive findings must be reported privately under [`SECURITY.md`](SECURITY.md).
-
----
-
-## Repository layout
-
-```text
-AIRIV-Sentinel-OSS/
-├── .github/                # Public CI and contribution templates
-├── baseline/               # Public frozen V1 baseline records
-├── config/                 # Non-secret repository configuration
-├── contracts/              # Public canonical architecture/authority contracts
-├── deployment/systemd/     # Standard Sentinel service template
-├── docs/                   # Public architecture and operations docs
-├── scripts/                # Public validation/install/security scripts
-├── sentinel/               # Runtime implementation
-├── tests/                  # Curated regression suite
-├── AGENTS.md
-├── CHANGELOG.md
-├── CONTRIBUTING.md
-├── index.html              # Curated visual project lock report
-├── LICENSE
-├── README.md               # Curated project and roadmap lock summary
-├── SECURITY.md
-└── requirements-dev.txt
-```
-
-Private operational/release-control material is deliberately absent from this curated distribution.
-
----
-
-## AIRIV Sentinel Roadmap handoff — locked inputs
-
-The future **AIRIV Sentinel Roadmap** must treat these as settled foundation unless an explicit strategic architecture decision changes them:
-
-1. Sentinel is the AIRIV Autonomous Commander and remains external to AIRIV Server.
-2. Commander retains final strategic authority.
-3. Safety remains fail-closed / default-deny.
-4. `RemediationPolicy` remains canonical remediation ALLOW/DENY authority.
-5. `ExecutionBoundary` remains the sole command executor.
-6. Terminal incident mutation remains centralized in `IncidentManager.resolve()`.
-7. Consequential recovery claims require independent post-effect verification.
-8. Evidence remains observable, durable, reconstructable, and auditable.
-9. AI agents are execution resources; AI output is not semantic authority.
-10. Execution identity, replay protection, and terminal uncertain-outcome handling are mandatory.
-11. Autonomy expands only through explicit bounded target/action contracts, never wildcard authority.
-12. Gate 4 production autonomy remains deliberately narrow until an explicit safety/architecture decision expands it.
-13. CI/self-hosted automation crosses a narrow trusted-host boundary for privileged effects; runners do not gain general root authority.
-14. Deployment remains clean-worktree, fast-forward-only, exact-main, verified, and evidence-producing.
-15. Sentinel may integrate with the canonical AIRIV Event + Job Foundation but must not invent a parallel Event Bus or domain authority.
-16. `AIRIV-Sentinel` remains the **Private canonical source** domain.
-17. `AIRIV-Sentinel-OSS` remains the **Public curated open-source distribution** domain with independent public history.
-18. Public synchronization remains fail-closed and allowlisted; no broad cross-repository write credential is introduced merely for convenience.
-19. Both domains maintain synchronized `README.md` and `index.html`, with public-safe transformations and disclosure validation.
-20. Public documentation minimizes private topology and operational details not required for safe use.
-
-### Roadmap candidates — not yet commitments
-
-- additional production targets only with explicit per-target safety profiles;
-- richer durable evidence indexing, retention, querying, and unattended timelines;
-- improved Commander handoff and unattended-incident summaries;
-- verified AI-agent/provider integrations without granting semantic authority;
-- canonical AIRIV Event + Job adapter integration after its contract boundary is ready;
-- hardened packaging, installation, upgrade, rollback, and release automation;
-- controlled promotion of validated curated public snapshots;
-- fleet/multi-host support only after host identity, authority, and evidence semantics are contracted;
-- improved metrics, health, observability, and recovery without weakening lifecycle authority.
-
----
-
-## Security
-
-Read [`SECURITY.md`](SECURITY.md) before reporting a vulnerability.
-
-Never place credentials, API keys, tokens, private keys, passwords, confidential host data, private host topology, production evidence, exploit instructions, or authorization material in public issues, pull requests, documentation, screenshots, logs, examples, or test fixtures.
-
-Repository security controls include:
-
-- fail-closed remediation architecture;
-- minimal GitHub Actions permissions;
-- history-aware high-confidence secret scanning;
-- secret-bearing filename rejection;
-- curated public-distribution allowlisting;
-- Markdown/HTML documentation validation;
-- public disclosure guard;
-- independent private/public Git histories;
-- narrow trusted-host privilege boundaries;
-- exact-effect authorization, replay protection, and independent verification.
-
-> **What the system claims happened must be supported by observable evidence and conform to the applicable canonical contract.**
-
----
+1. Commander is final strategic authority.
+2. Fail-closed/default-deny behavior is mandatory.
+3. Policy, execution, verification, outcome mapping, and lifecycle mutation remain exclusive boundaries.
+4. Evidence and replay identity are mandatory for consequential effects.
+5. AI output is never authority by itself.
+6. Autonomous remediation expands only through explicit bounded contracts.
+7. External delivery is disabled until an adapter and exact destination are explicitly reviewed.
+8. Sentinel must not create a parallel AIRIV Event Bus or Job Worker.
+9. Public distribution remains curated, not a private-history mirror.
 
 ## License
 
-Copyright 2026 Boedi Arivianto Ontowiryo.
-
-Licensed under the [Apache License 2.0](LICENSE).
-
----
-
-**AIRIV Sentinel — observe, authorize, execute, verify, preserve evidence.**
+Apache License 2.0. See [LICENSE](LICENSE).
