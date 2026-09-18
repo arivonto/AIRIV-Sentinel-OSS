@@ -17,8 +17,8 @@ PINNED_ACTIONS = {
     "actions/checkout": "3d3c42e5aac5ba805825da76410c181273ba90b1",
     "actions/setup-python": "5fda3b95a4ea91299a34e894583c3862153e4b97",
     "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
-    "actions/download-artifact": "634f93cb2916e3fdff6788551b99b062d0335ce0",
-    "actions/create-github-app-token": "0d564482f06ca65fa9e77e2510873638c82206f2",
+    "actions/download-artifact": "37930b1c2abaa49bbe596cd826c3c89aef350131",
+    "actions/create-github-app-token": "bcd2ba49218906704ab6c1aa796996da409d3eb1",
 }
 
 
