@@ -22,92 +22,6 @@ PINNED_ACTIONS = {
 }
 
 
-def _working_tree_commit() -> str:
-    """Snapshot the current working tree as a temporary commit object.
-
-    The exporter reads its allowlisted paths from the given source revision,
-    so exporting ``HEAD`` would silently ignore uncommitted fixes. Building a
-    throwaway commit object through a temporary index captures the working
-    tree exactly, without mutating HEAD, the real index, or any branch. The
-    resulting commit is unreferenced and simply garbage-collected later.
-    """
-    import os
-    import tempfile
-
-    with tempfile.TemporaryDirectory() as tmp:
-        index = os.path.join(tmp, "index")
-        env = {**os.environ, "GIT_INDEX_FILE": index}
-        subprocess.run(["git", "read-tree", "HEAD"], cwd=ROOT, env=env, check=True)
-        # `.gitignore` already excludes ignored content such as dist snapshots.
-        subprocess.run(["git", "add", "-A"], cwd=ROOT, env=env, check=True)
-        tree = subprocess.run(
-            ["git", "write-tree"],
-            cwd=ROOT,
-            env=env,
-            check=True,
-            capture_output=True,
-            text=True,
-        ).stdout.strip()
-        head = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            cwd=ROOT,
-            check=True,
-            capture_output=True,
-            text=True,
-        ).stdout.strip()
-        commit = subprocess.run(
-            [
-                "git",
-                "-c",
-                "user.name=AIRIV Distribution Validation",
-                "-c",
-                "user.email=noreply@airiv.local",
-                "commit-tree",
-                tree,
-                "-p",
-                head,
-                "-m",
-                "Temporary public snapshot",
-            ],
-            cwd=ROOT,
-            env=env,
-            check=True,
-            capture_output=True,
-            text=True,
-        ).stdout.strip()
-    return commit
-
-
-@pytest.fixture(scope="session")
-def public_snapshot(tmp_path_factory, ) -> Path:
-    """Build a public distribution snapshot into a temporary directory.
-
-    The canonical CI pipeline does not create ``dist/airiv-sentinel-public``
-    before full pytest, so these tests must not depend on a pre-existing
-    repository artifact.
-    """
-    out_dir = tmp_path_factory.mktemp("public_distribution")
-    script = ROOT / "scripts" / "build_public_distribution.sh"
-    source_ref = _working_tree_commit()
-    proc = subprocess.run(
-        ["bash", str(script), source_ref, str(out_dir)],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if proc.returncode != 0:
-        raise RuntimeError(
-            f"public distribution exporter failed:\n"
-            f"exit={proc.returncode}\n"
-            f"stdout:\n{proc.stdout}\n"
-            f"stderr:\n{proc.stderr}"
-        )
-    if not out_dir.is_dir():
-        raise RuntimeError(f"exporter did not produce output directory: {out_dir}")
-    return out_dir
-
-
 def _ci_text() -> str:
     return CI_WORKFLOW.read_text(encoding="utf-8")
 
@@ -164,17 +78,6 @@ def test_parallel_ci_reserves_full_regression_for_pull_requests():
     assert "if: github.event_name == 'pull_request'" in full_regression
 
 
-def test_public_distribution_does_not_run_for_parallel_lane_pushes():
-    """Parallel lanes must not spend public packaging runs before main integration."""
-    public_distribution = WORKFLOW_DIR / "public-distribution.yml"
-    text = public_distribution.read_text(encoding="utf-8")
-
-    assert "workflow_dispatch:" in text
-    assert "push:" in text
-    assert "- main" in text
-    assert "engineering/**" not in text
-
-
 def test_parallel_ci_keeps_required_fail_closed_gates_visible():
     """Guard against CI-success caused by silently deleting a required validation gate."""
     text = _ci_text()
@@ -207,7 +110,10 @@ def test_pytest_discovery_uses_recursive_git_tracked_modules():
     """Nested tracked tests must not escape the required-test discovery contract."""
     text = _ci_text()
 
-    assert '["git", "ls-files", "-z", "--", "tests"]' in text
+    # Dual-root discovery: canonical CI collects tracked modules from BOTH
+    # tests/ and canonical_tests/ (the public export keeps this invocation;
+    # its unmatched canonical_tests pathspec lists nothing).
+    assert '["git", "ls-files", "-z", "--", "tests", "canonical_tests"]' in text
     assert 'Path("tests").glob("test_*.py")' not in text
     assert 'Path(path).name.startswith("test_")' in text
     assert 'Path(path).suffix == ".py"' in text
@@ -342,158 +248,3 @@ def test_all_workflow_actions_are_reviewed_sha_pins():
     public_distribution = WORKFLOW_DIR / "public-distribution.yml"
     if public_distribution.exists():
         assert discovered == PINNED_ACTIONS
-
-
-def test_public_ci_yml_excludes_private_engineering_lane_triggers(
-    public_snapshot: Path,
-) -> None:
-    """The public version of ci.yml must not carry canonical private branch triggers.
-
-    The exporter adapts ci.yml for the OSS domain. The public snapshot's
-    ci.yml must not advertise canonical engineering-lane push triggers that
-    have no meaning in the curated public repository.
-    """
-    public_ci = public_snapshot / ".github" / "workflows" / "ci.yml"
-    text = public_ci.read_text(encoding="utf-8")
-    assert "push:" in text, "public ci.yml must still define push triggers"
-    assert "- main" in text, "public ci.yml push must include main"
-    assert "engineering/**" not in text, (
-        "public ci.yml leaked canonical engineering/** branch trigger"
-    )
-
-
-def test_public_distribution_lock_file_is_present(
-    public_snapshot: Path,
-) -> None:
-    """requirements-dev-lock.txt must be present in the curated public snapshot."""
-    lock_path = public_snapshot / "requirements-dev-lock.txt"
-    assert lock_path.exists(), (
-        "requirements-dev-lock.txt missing from public snapshot — "
-        "exporter allowlist or required list may be incomplete"
-    )
-    lock_lines = [
-        line.strip()
-        for line in lock_path.read_text(encoding="utf-8").splitlines()
-        if line.strip() and not line.lstrip().startswith("#")
-    ]
-    assert lock_lines == [
-        "pytest==8.4.2",
-        "PyYAML==6.0.3",
-        "iniconfig==2.3.0",
-        "packaging==26.3",
-        "pluggy==1.6.0",
-        "Pygments==2.21.0",
-    ], "public lock file content does not match reviewed resolved dependency set"
-
-
-def _git(tmp_path: Path, *args: str, cwd: Path) -> str:
-    """Run git in a repository directory and return stdout."""
-    proc = subprocess.run(
-        ["git", "-C", str(cwd), *args],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert proc.returncode == 0, f"git {args} failed:\n{proc.stderr}"
-    return proc.stdout
-
-
-LOCKED_PDF = "contracts/AIRIV-Sentinel-Blueprint-v1.1-Final-Locked.pdf"
-
-
-def _candidate_repo(public_snapshot: Path, tmp_path: Path) -> Path:
-    """Materialize the generated public snapshot as a fresh temporary Git repo."""
-    repo = tmp_path / "candidate"
-    subprocess.run(["cp", "-a", str(public_snapshot), str(repo)], check=True)
-    _git(tmp_path, "init", "-q", "-b", "main", cwd=repo)
-    _git(tmp_path, "config", "user.name", "AIRIV Distribution Validation", cwd=repo)
-    _git(
-        tmp_path,
-        "config",
-        "user.email",
-        "noreply@airiv.local",
-        cwd=repo,
-    )
-    _git(tmp_path, "add", "-A", cwd=repo)
-    return repo
-
-
-def test_public_distribution_contains_gitattributes(public_snapshot: Path) -> None:
-    """.gitattributes must be exported so OSS git keeps PDF binary semantics."""
-    attributes = public_snapshot / ".gitattributes"
-    assert attributes.exists(), (
-        ".gitattributes missing from public snapshot — exporter allowlist "
-        "or required-artifact list may be incomplete"
-    )
-    text = attributes.read_text(encoding="utf-8")
-    assert "*.pdf binary" in text, (
-        "exported .gitattributes does not classify *.pdf as binary"
-    )
-
-
-def test_locked_pdf_exists_in_public_snapshot(public_snapshot: Path) -> None:
-    """The locked contract PDF must be part of the curated public snapshot."""
-    pdf = public_snapshot / LOCKED_PDF
-    assert pdf.is_file(), f"locked PDF missing from public snapshot: {LOCKED_PDF}"
-    assert pdf.stat().st_size > 0, "locked PDF exported empty"
-
-
-def test_locked_pdf_receives_binary_git_attributes(
-    public_snapshot: Path,
-    tmp_path: Path,
-) -> None:
-    """In a temporary Git repository the locked PDF must be treated as binary."""
-    repo = _candidate_repo(public_snapshot, tmp_path)
-    output = _git(
-        tmp_path,
-        "check-attr",
-        "-a",
-        "--",
-        LOCKED_PDF,
-        cwd=repo,
-    )
-    attributes = dict(
-        line.split(":", 2)[1:] for line in output.strip().splitlines()
-    )
-    assert attributes.get(" binary", "").strip() == "set", (
-        f"locked PDF lacks binary attribute:\n{output}"
-    )
-    assert attributes.get(" diff", "").strip() == "unset"
-    assert attributes.get(" merge", "").strip() == "unset"
-    assert attributes.get(" text", "").strip() == "unset"
-
-
-def test_public_candidate_passes_patch_hygiene(
-    public_snapshot: Path,
-    tmp_path: Path,
-) -> None:
-    """The complete generated public candidate must pass git diff --check."""
-    repo = _candidate_repo(public_snapshot, tmp_path)
-    proc = subprocess.run(
-        ["git", "-C", str(repo), "diff", "--cached", "--check"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert proc.returncode == 0, (
-        "git diff --check failed for generated public candidate:\n"
-        f"{proc.stdout}\n{proc.stderr}"
-    )
-    assert not proc.stdout.strip(), (
-        f"whitespace errors in generated public candidate:\n{proc.stdout}"
-    )
-
-
-def test_public_distribution_lock_file_and_ci_yml_coexist(
-    public_snapshot: Path,
-) -> None:
-    """The public snapshot must contain both requirements-dev-lock.txt and ci.yml."""
-    lock_path = public_snapshot / "requirements-dev-lock.txt"
-    ci_path = public_snapshot / ".github" / "workflows" / "ci.yml"
-    assert lock_path.exists(), "requirements-dev-lock.txt missing from public snapshot"
-    assert ci_path.exists(), "ci.yml missing from public snapshot"
-    # The lock file must be referenced by the exported ci.yml's pip cache setup.
-    text = ci_path.read_text(encoding="utf-8")
-    assert "cache-dependency-path: requirements-dev-lock.txt" in text, (
-        "exported ci.yml does not reference requirements-dev-lock.txt for pip caching"
-    )

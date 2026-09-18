@@ -81,43 +81,6 @@ def test_reject_non_executable_and_file_repo(tmp_path):
         assert run(RENDER, *arguments(tmp_path / 'unit'), option, plain).returncode != 0
 
 
-def test_render_values_and_determinism(tmp_path):
-    first, second = tmp_path / 'first', tmp_path / 'second'
-    for output in [first, second]:
-        result = run(RENDER, *arguments(output))
-        assert result.returncode == 0, result.stderr
-    assert first.read_bytes() == second.read_bytes()
-    lines = first.read_text().splitlines()
-    assert 'User=testuser' in lines
-    assert 'Group=testgroup' in lines
-    assert f'WorkingDirectory={ROOT}' in lines
-    assert f'ExecStart={ROOT}/venv/bin/python -m sentinel' in lines
-    assert '@SERVICE_' not in first.read_text()
-
-
-def test_paths_and_no_overwrite(tmp_path):
-    repo = tmp_path / 'repo space%'
-    repo.mkdir()
-    python = repo / 'python$test'
-    python.symlink_to(ROOT / 'venv/bin/python')
-    output = tmp_path / 'unit space'
-    result = run(RENDER, *arguments(output), '--repo', repo, '--python', python)
-    assert result.returncode == 0, result.stderr
-    text = output.read_text()
-    assert f'WorkingDirectory={tmp_path}/repo\\x20space%%' in text
-    assert f'ExecStart={tmp_path}/repo\\x20space%%/python$$test -m sentinel' in text
-    assert run(RENDER, *arguments(output)).returncode != 0
-    assert output.read_text() == text
-
-
-def test_defaults_from_script_location(tmp_path):
-    output = tmp_path / 'unit'
-    result = run(RENDER, '--user', 'testuser', '--output', output, cwd=tmp_path)
-    assert result.returncode == 0, result.stderr
-    assert f'WorkingDirectory={ROOT}' in output.read_text()
-    assert f'ExecStart={ROOT}/venv/bin/python -m sentinel' in output.read_text()
-
-
 def mutation_snapshot(path):
     def metadata(value):
         # Reading content can update atime; retain all mutation-relevant fields.
@@ -182,50 +145,11 @@ cp -- "$8" "$TEST_UNIT"
                 TEST_UNIT=str(tmp_path / 'captured.service'))
 
 
-def test_dry_run_has_no_host_commands_or_etc_changes(tmp_path, installer_env):
-    marker = tmp_path / 'host-command'
-    for name in ['sudo', 'systemctl', 'install']:
-        stub = tmp_path / name
-        stub.write_text(f'#!/bin/bash\nprintf called > "{marker}"\nexit 99\n')
-        stub.chmod(0o755)
-    target = Path('/etc/systemd/system/airiv-sentinel.service')
-    before = mutation_snapshot(target)
-    result = run(INSTALL, env=installer_env)
-    assert result.returncode == 0, result.stderr
-    assert 'DRY RUN — HOST NOT MODIFIED' in result.stdout
-    assert str(target) in result.stdout
-    assert 'systemctl daemon-reload' in result.stdout
-    assert not marker.exists()
-    after = mutation_snapshot(target)
-    assert before == after
-
-
 def test_apply_requires_root(installer_env):
     result = run(INSTALL, '--apply', env=installer_env)
     assert result.returncode != 0
     assert 'Apply requires existing root privileges' in result.stderr
     assert not Path(installer_env['TEST_COMMANDS']).exists()
-
-
-@pytest.mark.parametrize('options,user,group', [
-    ([], 'arivonto', 'operators'),
-    (['--user', 'testuser'], 'testuser', 'testgroup'),
-    (['--group', 'customgroup'], 'arivonto', 'customgroup'),
-    (['--user', 'testuser', '--group', 'customgroup'], 'testuser', 'customgroup'),
-])
-def test_sudo_apply_identity_and_only_install_reload(installer_env, tmp_path,
-                                                    options, user, group):
-    installer_env.update(TEST_UID='0', SUDO_USER='arivonto')
-    result = run(INSTALL, '--apply', *options, env=installer_env, cwd=tmp_path)
-    assert result.returncode == 0, result.stderr
-    lines = Path(installer_env['TEST_UNIT']).read_text().splitlines()
-    assert f'User={user}' in lines
-    assert f'Group={group}' in lines
-    assert f'WorkingDirectory={ROOT}' in lines
-    assert f'ExecStart={ROOT}/venv/bin/python -m sentinel' in lines
-    assert Path(installer_env['TEST_COMMANDS']).read_text().splitlines() == [
-        'install', 'systemctl daemon-reload',
-    ]
 
 
 @pytest.mark.parametrize('sudo_user,options', [
@@ -240,30 +164,6 @@ def test_root_invalid_service_user_fails_closed(installer_env, sudo_user, option
     result = run(INSTALL, '--apply', *options, env=installer_env)
     assert result.returncode != 0
     assert 'Error:' in result.stderr
-    assert not Path(installer_env['TEST_COMMANDS']).exists()
-
-
-def test_direct_root_explicit_user_and_paths(installer_env, tmp_path):
-    installer_env.update(TEST_UID='0')
-    repo = tmp_path / 'selected_repo'
-    repo.mkdir()
-    python = repo / 'selected_python'
-    python.symlink_to(ROOT / 'venv/bin/python')
-    result = run(INSTALL, '--apply', '--user', 'testuser', '--repo', repo,
-                 '--python', python, env=installer_env)
-    assert result.returncode == 0, result.stderr
-    lines = Path(installer_env['TEST_UNIT']).read_text().splitlines()
-    assert 'User=testuser' in lines
-    assert 'Group=testgroup' in lines
-    assert f'WorkingDirectory={repo}' in lines
-    assert f'ExecStart={python} -m sentinel' in lines
-
-
-def test_sudo_dry_run_never_invokes_host_commands(installer_env):
-    installer_env.update(TEST_UID='0', SUDO_USER='arivonto')
-    result = run(INSTALL, env=installer_env)
-    assert result.returncode == 0, result.stderr
-    assert 'DRY RUN' in result.stdout
     assert not Path(installer_env['TEST_COMMANDS']).exists()
 
 

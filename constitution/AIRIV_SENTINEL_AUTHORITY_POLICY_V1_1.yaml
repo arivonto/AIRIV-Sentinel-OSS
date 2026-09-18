@@ -1,0 +1,52 @@
+schema: airiv.sentinel.authority/v1
+
+authority_chain:
+  - COMMANDER_CONSTITUTION
+  - DELEGATED_SENTINEL_AUTHORITY
+  - CANONICAL_SKILL_AUTHORITY
+  - EXECUTION_BOUNDARY
+  - INDEPENDENT_VERIFICATION
+
+non_authorities:
+  - LANGUAGE_MODEL
+  - AI_AGENT
+  - GITHUB_ACTION
+  - SCRIPT
+  - TOOL
+  - DOCUMENTATION
+  - MODEL_INFERENCE
+
+development_authority:
+  default: ALLOW_WITHIN_DELEGATED_DOMAIN
+  requires_no_routine_commander_approval:
+    - repository_inspection
+    - source_editing
+    - refactoring
+    - local_shell_execution
+    - local_build
+    - local_tests
+    - test_failure_diagnosis
+    - autonomous_debugging
+    - retry
+    - docker_development_operation
+    - development_service_restart
+    - development_database_operation
+    - git_branch
+    - git_commit
+    - engineering_branch_push
+    - ci_inspection
+    - ci_failure_repair
+    - documentation_update
+
+commander_escalation_required:
+  - irreversible_destructive_action
+  - paid_external_commitment
+  - credential_or_security_boundary_change
+  - high_impact_production_action
+  - high_impact_customer_data_action
+  - constitutional_change
+  - strategic_architecture_change
+
+production_authority:
+  default: BOUNDED
+  implicit_expansion: DENIED

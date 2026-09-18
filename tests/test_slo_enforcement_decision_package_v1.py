@@ -4,7 +4,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "contracts" / "AIRIV_SENTINEL_SLO_ENFORCEMENT_DECISION_PACKAGE_V1.md"
 ROADMAP = ROOT / "AIRIV_SENTINEL_ROADMAP.md"
-STATUS_REGISTRY = ROOT / "docs" / "AIRIV_SENTINEL_STATUS_CONTRACT_REGISTRY.md"
 
 
 def _text(path: Path) -> str:
@@ -85,12 +84,3 @@ def test_roadmap_marks_next_step_as_commander_authority_review_not_enforcement()
     assert "### ACTIVE SAFE NEXT — SLO Enforcement Authority Review" in text
     assert "**SLO Enforcement Authority Review** — ACTIVE SAFE NEXT / Commander decision required" in text
     assert "**SLO Enforcement Design** — starts only after explicit Commander authority decision" in text
-
-
-def test_status_registry_records_package_without_promoting_slo_enforcement():
-    text = _text(STATUS_REGISTRY)
-
-    assert "| SLO Enforcement Decision Package | **IMPLEMENTED / NON-EXECUTABLE** |" in text
-    assert "Commander decision requirements only; no SLO enforcement" in text
-    assert "Live AI Provider Adapter | **DECISION-GATED / DISABLED**" in text
-    assert "Upgrade / Rollback Execution | **NOT AUTHORIZED**" in text

@@ -201,7 +201,15 @@ jobs:
         run: |
           set -euo pipefail
           collection="$RUNNER_TEMP/airiv-pytest-collection.txt"
-          python -m pytest --collect-only -q -p no:cacheprovider > "$collection"
+          pytest_exit=0
+          python -m pytest --collect-only -q -p no:cacheprovider tests > "$collection" 2>&1 || pytest_exit=$?
+          if [[ "$pytest_exit" -ne 0 ]]; then
+            echo "PYTEST_COLLECTION_EXIT=$pytest_exit"
+            echo "----- captured pytest output -----"
+            cat "$collection"
+            echo "----- end captured pytest output -----"
+            exit "$pytest_exit"
+          fi
           python - "$collection" <<'PY'
           from pathlib import Path
           import subprocess
@@ -209,7 +217,7 @@ jobs:
 
           collection_path = Path(sys.argv[1])
           tracked_raw = subprocess.check_output(
-              ["git", "ls-files", "-z", "--", "tests"]
+              ["git", "ls-files", "-z", "--", "tests", "canonical_tests"]
           )
           tracked = sorted(
               path
@@ -219,14 +227,14 @@ jobs:
               if Path(path).name.startswith("test_") and Path(path).suffix == ".py"
           )
           if not tracked:
-              print("::error::no tracked test modules found under tests/")
+              print("::error::no tracked test modules found under tests/ or canonical_tests/")
               raise SystemExit(1)
 
           modules = set()
           items = 0
           for raw in collection_path.read_text(encoding="utf-8").splitlines():
               line = raw.strip()
-              if not line.startswith("tests/") or "::" not in line:
+              if not line.startswith(("tests/", "canonical_tests/")) or "::" not in line:
                   continue
               modules.add(line.split("::", 1)[0])
               items += 1
@@ -309,7 +317,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m pytest -q -p no:cacheprovider
+          python -m pytest -q -p no:cacheprovider tests
 
       - name: Revalidate main and report Lane 5 CI acceptance
         shell: bash
