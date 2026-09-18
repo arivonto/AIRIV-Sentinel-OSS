@@ -59,6 +59,11 @@ def test_main_callable_and_canonical_runtime():
     runtime = ep.build_production_runtime()
     assert type(runtime) is SentinelRuntime
     assert not runtime.running
+    assert runtime.constitution.v11_runtime_active is True
+    assert runtime.authority_profile == "TRUSTED_AUTONOMOUS_ENGINEERING"
+    assert runtime.authenticity_mode == "REALITY_FIRST"
+    assert runtime.routine_development_approval_required is False
+    assert runtime.production_mode == "SEPARATELY_BOUNDED"
 
 
 def test_explicit_existing_immutable_config():

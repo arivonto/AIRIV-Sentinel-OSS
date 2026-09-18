@@ -62,3 +62,18 @@ def isolate_commander_delivery_state(monkeypatch, tmp_path):
         "AIRIV_SENTINEL_DELIVERY_DRY_RUN_DIR",
         str(tmp_path / "delivery_dry_run"),
     )
+
+
+@pytest.fixture(autouse=True)
+def isolate_gate4_host_enablement(monkeypatch):
+    """Prevent tests from inheriting real Gate 4 host enablement."""
+    from sentinel.systemd_production_bounded_autonomous import (
+        BoundedAutonomousSystemdCapability,
+    )
+    import sentinel.systemd_production_gate4_autonomous_runtime as gate4_runtime
+
+    monkeypatch.setattr(
+        gate4_runtime,
+        "load_gate4_capability",
+        lambda: BoundedAutonomousSystemdCapability(),
+    )

@@ -74,7 +74,11 @@ class ActivityDetector:
 def normalize_observations(
     raw_observations: List[Dict],
     resolver: IdentityResolver,
+    activity_detector: Optional[ActivityDetector] = None,
 ) -> List[Dict]:
+    """Normalize observed facts with explicit injectable boundaries."""
+
+    detector = activity_detector or ActivityDetector()
     normalized: List[Dict] = []
 
     for observation in raw_observations:
@@ -85,7 +89,7 @@ def normalize_observations(
         )
 
         enriched["activity_state"] = (
-            ActivityDetector.classify_activity(enriched)
+            detector.classify_activity(enriched)
         )
 
         normalized.append(enriched)

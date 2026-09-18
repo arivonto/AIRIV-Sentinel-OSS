@@ -2,13 +2,15 @@
 
 from dataclasses import fields
 from datetime import timezone
-from threading import Event, Thread
+from threading import Event, RLock, Thread
+from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
 
 import sentinel.worker as api
 from sentinel.runtime import SentinelRuntime
+from sentinel.runtime_reliability import RuntimeReliabilityLedger
 from sentinel.worker import runtime_worker as module
 from sentinel.worker import (
     DaemonConfig, HealthMonitor, OperationalDaemon, RuntimeSupervisor,
@@ -22,6 +24,7 @@ def setup():
     # Production start recovers persisted investigations and launches a thread.
     # A spec-bound stub keeps those effects out of unit tests.
     runtime = Mock(spec=SentinelRuntime)
+    runtime.get_runtime_health.return_value = SimpleNamespace(running=True)
     worker = SentinelRuntimeWorker(runtime, WorkerId("sentinel.runtime"))
     return runtime, worker
 
@@ -67,6 +70,62 @@ def test_start_stop_restart_and_invalid_operations(setup):
     assert runtime.start.call_count == runtime.stop.call_count == 2
 
 
+def test_health_tracks_canonical_runtime_liveness(setup):
+    runtime, worker = setup
+    worker.start()
+    assert worker.health()
+
+    # Simulate canonical runtime liveness loss without mutating adapter state.
+    runtime.get_runtime_health.return_value = SimpleNamespace(running=False)
+
+    assert worker.state() is WorkerState.RUNNING
+    assert worker.last_error is None
+    assert not worker.health()
+    heartbeat = worker.heartbeat()
+    assert heartbeat.state is WorkerState.RUNNING
+    assert not heartbeat.healthy
+    assert runtime.stop.call_count == 0
+
+    worker.stop()
+    assert worker.state() is WorkerState.STOPPED
+
+
+def test_health_projection_failure_or_malformed_value_fails_closed(setup):
+    runtime, worker = setup
+    worker.start()
+
+    runtime.get_runtime_health.side_effect = RuntimeError("passive health failed")
+    assert not worker.health()
+    assert worker.state() is WorkerState.RUNNING
+    assert worker.last_error is None
+
+    runtime.get_runtime_health.side_effect = None
+    runtime.get_runtime_health.return_value = object()
+    assert not worker.health()
+    assert not worker.heartbeat().healthy
+    assert worker.state() is WorkerState.RUNNING
+
+    runtime.get_runtime_health.return_value = SimpleNamespace(running=True)
+    worker.stop()
+
+
+def test_health_projection_does_not_swallow_baseexception(setup):
+    runtime, worker = setup
+    worker.start()
+    interrupt = KeyboardInterrupt("stop observation")
+    runtime.get_runtime_health.side_effect = interrupt
+
+    with pytest.raises(KeyboardInterrupt) as caught:
+        worker.health()
+    assert caught.value is interrupt
+    assert worker.state() is WorkerState.RUNNING
+    assert worker.last_error is None
+
+    runtime.get_runtime_health.side_effect = None
+    runtime.get_runtime_health.return_value = SimpleNamespace(running=True)
+    worker.stop()
+
+
 @pytest.mark.parametrize("operation", ["start", "stop"])
 @pytest.mark.parametrize("error_type", [RuntimeError, KeyboardInterrupt])
 def test_lifecycle_failure_and_restart(setup, operation, error_type):
@@ -97,6 +156,7 @@ def test_heartbeat_observation_and_monotonic_lifetime(monkeypatch):
     ticks = iter([10.0, 12.0, 15.0, 18.0, 20.0])
     monkeypatch.setattr(module.time, "monotonic", lambda: next(ticks))
     runtime = Mock(spec=SentinelRuntime)
+    runtime.get_runtime_health.return_value = SimpleNamespace(running=True)
     worker = SentinelRuntimeWorker(runtime, WorkerId("runtime-1"))
     observations = [worker.heartbeat()]
     worker.start()
@@ -117,7 +177,11 @@ def test_heartbeat_observation_and_monotonic_lifetime(monkeypatch):
         assert heartbeat.uptime >= 0
     assert observations[-1].state is worker.state()
     # No sensor cycles, diagnostics, Commander or remediation were invoked.
-    assert [call[0] for call in runtime.mock_calls] == ["start", "stop", "start"]
+    effect_calls = [
+        call[0] for call in runtime.mock_calls
+        if call[0] != "get_runtime_health"
+    ]
+    assert effect_calls == ["start", "stop", "start"]
     assert {field.name for field in fields(observations[0])} == {
         "worker_id", "state", "timestamp", "uptime", "iteration", "healthy",
     }
@@ -221,7 +285,11 @@ def test_real_infrastructure_chain_without_internal_thread(setup, monkeypatch):
     finally:
         supervisor.stop()
     assert worker.state() is WorkerState.STOPPED
-    assert [call[0] for call in runtime.mock_calls] == ["start", "stop"]
+    effect_calls = [
+        call[0] for call in runtime.mock_calls
+        if call[0] != "get_runtime_health"
+    ]
+    assert effect_calls == ["start", "stop"]
 
 
 def test_composition_preserves_supplied_phase1_graph(monkeypatch):
@@ -229,6 +297,9 @@ def test_composition_preserves_supplied_phase1_graph(monkeypatch):
     # coordinator replaced. Bypass construction to avoid persistent resources.
     runtime = object.__new__(SentinelRuntime)
     runtime.running = False
+    runtime.runtime_reliability = RuntimeReliabilityLedger()
+    runtime._lifecycle_lock = RLock()
+    runtime._pending_diagnostic_thread = None
     runtime.diagnostic = Mock()
     authorities = ("incident_manager", "commander", "execution", "policy",
                    "remediation_action_catalog", "sensor_adapter")

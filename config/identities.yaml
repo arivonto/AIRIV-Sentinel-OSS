@@ -7,15 +7,12 @@ session: airiv
 
 identities:
 
-  chatgpt:
+  ollama:
+    endpoint: http://localhost:11434
+    model: qwen3:4b
     windows:
-      - chatgpt
-      - si_engineer
-
-  gemini:
-    windows:
-      - gemini
-      - ti_engineer
+      - ollama
+      - local_llm
 
   airiv_system:
     windows:

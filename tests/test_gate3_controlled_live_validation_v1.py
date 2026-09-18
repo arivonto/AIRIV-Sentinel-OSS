@@ -122,6 +122,7 @@ def make_runtime(tmp_path, monkeypatch):
     # Gate 3 is the subject of this test. Other daemon inputs are made inert.
     runtime.canary_live_execution.cycle = lambda: None
     runtime.production_probe_live_execution.cycle = lambda: None
+    runtime.gate4_autonomous_remediation.cycle = lambda: None
     runtime.sensor_adapter.process_tick = lambda: []
     runtime.diagnostic.submit = lambda incidents: None
 

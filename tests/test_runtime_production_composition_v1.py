@@ -185,6 +185,7 @@ def test_real_phase2_chain_lifecycle_and_heartbeat(config, monkeypatch):
     # Only the Phase 1 lifecycle boundary is doubled; no persisted recovery,
     # diagnostic worker, sensor polling, or production commands can run.
     runtime = Mock(spec=SentinelRuntime)
+    runtime.get_runtime_health.return_value.running = True
     bundle = build_runtime_supervision(runtime, config)
     scheduler = RuntimeScheduler(bundle.daemon)
     monkeypatch.setattr(Thread, "__init__", forbidden)
@@ -214,7 +215,11 @@ def test_real_phase2_chain_lifecycle_and_heartbeat(config, monkeypatch):
     monkeypatch.setattr(bundle.daemon._stop_event, "wait", wait)
     scheduler.run_forever()
     assert len(observations) == scheduler.snapshot().cycles == 2
-    assert runtime.mock_calls == [call.start(), call.stop()]
+    effect_calls = [
+        item for item in runtime.mock_calls
+        if item != call.get_runtime_health()
+    ]
+    assert effect_calls == [call.start(), call.stop()]
     assert bundle.runtime_worker.state() is WorkerState.STOPPED
     assert bundle.supervisor.state is RuntimeState.STOPPED
     assert scheduler.snapshot().state is DaemonState.STOPPED

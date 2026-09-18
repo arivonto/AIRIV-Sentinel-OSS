@@ -1,0 +1,8 @@
+# AIRIV Sentinel GitHub-hosted CI resolved dependency lock.
+# Keep requirements-dev.txt as the compatibility policy; update this file only after reviewed CI validation.
+pytest==8.4.2
+PyYAML==6.0.3
+iniconfig==2.3.0
+packaging==26.3
+pluggy==1.6.0
+Pygments==2.21.0

@@ -62,7 +62,13 @@ class TmuxStateParserV11:
             else None
         )
 
-        self._pane_history: Dict[str, Dict] = {}
+        # History is scoped to the strong TMUX component identity rather
+        # than pane_id alone. TMUX may reuse pane IDs after a server restart,
+        # so cross-generation history must never be treated as one component.
+        self._pane_history: Dict[
+            tuple[str, str, str, str, str],
+            Dict,
+        ] = {}
 
     def _run_tmux_cmd(
         self,
@@ -366,6 +372,7 @@ class TmuxStateParserV11:
             "#{pane_id}\t"
             "#{pane_active}\t"
             "#{pane_dead}\t"
+            "#{pane_title}\t"
             "#{pane_current_command}\t"
             "#{pane_pid}"
         )
@@ -427,6 +434,12 @@ class TmuxStateParserV11:
         ).isoformat()
 
         observations: List[Dict] = []
+        pending_history: List[
+            tuple[
+                tuple[str, str, str, str, str],
+                Dict,
+            ]
+        ] = []
 
         for line in raw_output.splitlines():
             if not line.strip():
@@ -434,11 +447,26 @@ class TmuxStateParserV11:
 
             parts = line.split("\t")
 
-            # Backward-compatible parsing for old test fixtures.
+            # Backward-compatible parsing for older fixtures/records.
             # Legacy records remain observable but can never be strong
-            # live-remediation targets because session_id/window_id are
-            # absent.
-            if len(parts) == 11:
+            # live-remediation targets when session_id/window_id are absent.
+            if len(parts) == 12:
+                (
+                    session_id,
+                    session_name,
+                    window_id,
+                    window_index,
+                    window_name,
+                    pane_index,
+                    pane_id,
+                    pane_active,
+                    pane_dead,
+                    pane_title,
+                    current_command,
+                    pane_pid,
+                ) = parts
+
+            elif len(parts) == 11:
                 (
                     session_id,
                     session_name,
@@ -452,6 +480,8 @@ class TmuxStateParserV11:
                     current_command,
                     pane_pid,
                 ) = parts
+
+                pane_title = None
 
             elif len(parts) == 9:
                 (
@@ -468,6 +498,7 @@ class TmuxStateParserV11:
 
                 session_id = None
                 window_id = None
+                pane_title = None
 
             else:
                 continue
@@ -478,58 +509,16 @@ class TmuxStateParserV11:
             )
 
             capture_ok = content is not None
-
-            if content is None:
-                content = ""
-
             current_hash = (
-                self.compute_output_hash(
-                    content
-                )
-            )
-
-            previous_record = (
-                self._pane_history.get(
-                    pane_id
-                )
-            )
-
-            first_observation = (
-                previous_record is None
-            )
-
-            previous_hash = (
-                previous_record.get(
-                    "output_sha256"
-                )
-                if previous_record
+                self.compute_output_hash(content)
+                if capture_ok
                 else None
             )
-
-            previous_command = (
-                previous_record.get(
-                    "current_command"
-                )
-                if previous_record
+            output_length = (
+                len(content)
+                if capture_ok
                 else None
             )
-
-            output_changed = (
-                not first_observation
-                and previous_hash
-                != current_hash
-            )
-
-            self._pane_history[
-                pane_id
-            ] = {
-                "output_sha256":
-                    current_hash,
-                "current_command":
-                    current_command,
-                "captured_at":
-                    captured_at,
-            }
 
             identity_valid = all(
                 (
@@ -556,6 +545,79 @@ class TmuxStateParserV11:
                 "pane_id":
                     pane_id,
             }
+
+            history_key = (
+                (
+                    str(server_socket),
+                    str(server_generation),
+                    str(session_id),
+                    str(window_id),
+                    str(pane_id),
+                )
+                if identity_valid
+                else None
+            )
+
+            previous_record = (
+                self._pane_history.get(
+                    history_key
+                )
+                if history_key is not None
+                else None
+            )
+
+            first_observation = (
+                previous_record is None
+            )
+
+            previous_hash = (
+                previous_record.get(
+                    "output_sha256"
+                )
+                if previous_record
+                else None
+            )
+
+            previous_command = (
+                previous_record.get(
+                    "current_command"
+                )
+                if previous_record
+                else None
+            )
+
+            output_changed = (
+                None
+                if not capture_ok
+                else (
+                    not first_observation
+                    and previous_hash
+                    != current_hash
+                )
+            )
+
+            # A failed capture, unresolved identity, or generation race must
+            # not poison the baseline used by a later trustworthy capture.
+            # Candidate history is committed only after the batch-level TMUX
+            # generation revalidation succeeds below.
+            if (
+                capture_ok
+                and identity_valid
+                and history_key is not None
+            ):
+                pending_history.append(
+                    (
+                        history_key,
+                        {
+                            "output_sha256":
+                                current_hash,
+                            "current_command":
+                                current_command,
+                            "captured_at":
+                                captured_at,
+                        },
+                    )
+                )
 
             observations.append(
                 {
@@ -594,6 +656,8 @@ class TmuxStateParserV11:
                         pane_active == "1",
                     "pane_dead":
                         pane_dead == "1",
+                    "pane_title":
+                        pane_title,
 
                     "current_command":
                         current_command,
@@ -609,7 +673,7 @@ class TmuxStateParserV11:
                     "capture_ok":
                         capture_ok,
                     "output_length":
-                        len(content),
+                        output_length,
                     "output_sha256":
                         current_hash,
                     "output_changed":
@@ -640,7 +704,27 @@ class TmuxStateParserV11:
             )
         )
 
-        if not generation_stable:
+        if generation_stable:
+            # Keep only the active strong server generation. This prevents
+            # pane-ID reuse after restart from inheriting stale activity
+            # history and keeps retained sensor history bounded by the current
+            # server generation.
+            active_server_identity = (
+                str(server_socket),
+                str(server_generation),
+            )
+            self._pane_history = {
+                key: record
+                for key, record in self._pane_history.items()
+                if key[:2] == active_server_identity
+            }
+
+            for history_key, record in pending_history:
+                self._pane_history[
+                    history_key
+                ] = record
+
+        else:
             for observation in observations:
                 observation[
                     "server_generation"
@@ -649,6 +733,20 @@ class TmuxStateParserV11:
                 observation[
                     "tmux_identity_valid"
                 ] = False
+
+                # Cross-observation relations are not trustworthy when the
+                # server generation cannot be revalidated. Preserve the raw
+                # current observation, but make correlation facts explicit
+                # unknowns rather than manufacturing activity.
+                observation[
+                    "previous_command"
+                ] = None
+                observation[
+                    "output_changed"
+                ] = None
+                observation[
+                    "first_observation"
+                ] = None
 
                 identity = dict(
                     observation.get(

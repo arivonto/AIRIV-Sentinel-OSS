@@ -2,9 +2,13 @@ import os
 import sys
 import yaml
 
+REPO_ROOT = os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))
+)
+
 sys.path.insert(
     0,
-    os.path.expanduser("~/airiv/airiv-sentinel"),
+    REPO_ROOT,
 )
 
 from sentinel.sensors.tmux.parser import TmuxStateParserV11
@@ -15,8 +19,10 @@ from sentinel.normalization.resolver import (
 
 
 def run_smoke_test():
-    config_path = os.path.expanduser(
-        "~/airiv/airiv-sentinel/config/identities.yaml"
+    config_path = os.path.join(
+        REPO_ROOT,
+        "config",
+        "identities.yaml",
     )
 
     if not os.path.exists(config_path):

@@ -2,11 +2,11 @@
 
 AIRIV Sentinel can perform consequential host operations when explicitly configured and authorized. Security reports and publication decisions must therefore be handled conservatively.
 
-## Supported versions
+## Supported Versions
 
-Security fixes are applied to the current public `main` branch and to explicitly published supported releases. Pre-release development snapshots are not guaranteed long-term support.
+Security fixes are applied to the current `main` branch and to explicitly published supported releases. Pre-release development snapshots are not guaranteed long-term support.
 
-## Reporting a vulnerability
+## Reporting a Vulnerability
 
 Do **not** open a public issue for a vulnerability, suspected credential exposure, authorization bypass, unsafe remediation path, privilege-escalation issue, evidence-integrity issue, production-effect binding weakness, or sensitive host-topology disclosure.
 
@@ -58,7 +58,7 @@ If a secret is committed, assume it is compromised: revoke/rotate it first, then
 
 ## Public documentation disclosure boundary
 
-Public documentation should explain architecture, installation, safety semantics, and supported interfaces without publishing operational details that materially improve an attacker's map of a specific trusted host.
+The public documentation surface should explain architecture, installation, safety semantics, and supported interfaces without publishing operational details that materially improve an attacker's map of a specific trusted host.
 
 Public-facing project documents must avoid unnecessary disclosure of:
 
@@ -70,12 +70,37 @@ Public-facing project documents must avoid unnecessary disclosure of:
 - production evidence locations;
 - private IP addresses, internal DNS names, tokens, or credentials.
 
-## Distribution boundary
+These details may remain in the private canonical engineering/operations repository when they are necessary for reviewed implementation and operations. Their presence in private source still requires normal least-privilege and credential-hygiene review.
 
-This public repository is a clean source distribution and does not inherit private canonical Git ancestry, private host-control/provenance files, runtime state, credentials, host-local configuration, or production evidence merely because those materials exist in private operations.
+## Repository and public-distribution boundary
 
-Publishing source code never grants runtime, host, Commander, or remediation authority.
+The canonical engineering/operations repository remains private. Public source is published through the clean allowlisted `AIRIV-Sentinel-OSS` distribution with independent public history.
+
+Public distribution must not inherit canonical private Git ancestry, private host-control/provenance files, runtime state, credentials, host-local configuration, or production evidence merely because they exist in the canonical repository.
+
+Publishing source code never grants runtime, host, Commander, Gate 3, Gate 4, or remediation authority.
 
 ## Public disclosure
 
 Please allow reasonable time for validation and remediation before public disclosure. Maintainers may request coordinated disclosure when a report affects production execution, authorization, privilege boundaries, evidence integrity, or host security.
+
+## Security Response Process
+
+Maintainers will acknowledge a private report when practical, validate the reported behavior, assess its impact and affected versions, and determine an appropriate mitigation or release. Reports that involve active exploitation or production authorization boundaries receive priority. Response timelines may vary based on severity, reproducibility, and available evidence.
+
+## Responsible Disclosure Policy
+
+Please keep vulnerability details private until maintainers have had reasonable time to investigate and remediate the issue. Do not access, alter, or exfiltrate data beyond what is necessary to demonstrate the issue. Coordinate any public disclosure date with maintainers when the vulnerability affects users, deployments, credentials, authorization, or production safety.
+
+## Security Best Practices
+
+- Keep dependencies and deployed releases current.
+- Use least-privilege accounts and isolated environments for testing.
+- Keep credentials, private keys, host-local state, and production evidence out of commits and issue reports.
+- Review authorization, target, action, evidence, and verification boundaries before enabling consequential behavior.
+- Treat unexpected execution results as untrusted until independently verified.
+- Report suspected exposure promptly and rotate compromised credentials before repository cleanup.
+
+## Contact
+
+Security reports should be submitted through [GitHub private vulnerability reporting](https://github.com/arivonto/AIRIV-Sentinel-OSS/security/advisories/new).

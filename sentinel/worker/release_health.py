@@ -42,6 +42,17 @@ class PostUpgradeVerificationHealthProjection:
     health: ProjectionHealth
 
 
+@dataclass(frozen=True)
+class RestartUpgradeContinuityHealthProjection:
+    total_records: int
+    continuous_count: int
+    changed_count: int
+    unknown_record_count: int
+    duplicate_observation_id_count: int
+    authority_violation_count: int
+    health: ProjectionHealth
+
+
 def _stable_id(record: Mapping[str, Any], field: str) -> str | None:
     value = record.get(field)
     return value.strip() if isinstance(value, str) and value.strip() else None
@@ -181,5 +192,66 @@ def project_post_upgrade_verification_health(
         health=_health(
             total=total,
             degraded=bool(failed or unknown or duplicates or authority_violations),
+        ),
+    )
+
+
+def project_restart_upgrade_continuity_health(
+    records: Iterable[Mapping[str, Any]],
+) -> RestartUpgradeContinuityHealthProjection:
+    """Project detached restart/upgrade continuity facts without effect authority."""
+    total = continuous = changed = unknown = duplicates = authority_violations = 0
+    identities: set[str] = set()
+
+    for record in records:
+        total += 1
+        record_unknown = False
+        observation_id = _stable_id(record, "observation_id")
+        if observation_id is None:
+            record_unknown = True
+        elif observation_id in identities:
+            duplicates += 1
+        else:
+            identities.add(observation_id)
+
+        before_identity = _stable_id(record, "before_identity")
+        after_identity = _stable_id(record, "after_identity")
+        if before_identity is None or after_identity is None:
+            record_unknown = True
+        elif before_identity == after_identity:
+            continuous += 1
+        else:
+            changed += 1
+
+        continuity_status = record.get("continuity_status")
+        if continuity_status == "CONTINUOUS":
+            if before_identity != after_identity:
+                record_unknown = True
+        elif continuity_status == "CHANGED":
+            if before_identity == after_identity:
+                record_unknown = True
+        elif continuity_status == "UNKNOWN":
+            record_unknown = True
+        else:
+            record_unknown = True
+
+        effect_authorized = record.get("effect_authorized")
+        if effect_authorized is True:
+            authority_violations += 1
+        elif effect_authorized is not False:
+            record_unknown = True
+
+        unknown += int(record_unknown)
+
+    return RestartUpgradeContinuityHealthProjection(
+        total_records=total,
+        continuous_count=continuous,
+        changed_count=changed,
+        unknown_record_count=unknown,
+        duplicate_observation_id_count=duplicates,
+        authority_violation_count=authority_violations,
+        health=_health(
+            total=total,
+            degraded=bool(changed or unknown or duplicates or authority_violations),
         ),
     )

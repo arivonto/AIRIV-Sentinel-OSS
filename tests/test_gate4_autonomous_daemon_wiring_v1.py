@@ -10,6 +10,7 @@ from sentinel.systemd_production_bounded_autonomous import (
     COMPONENT,
     BoundedAutonomousSystemdCapability,
 )
+import sentinel.systemd_production_gate4_autonomous_runtime as gate4_runtime_module
 from sentinel.systemd_remediation_safety import (
     SystemdManagerIdentity,
     SystemdUnitIdentity,
@@ -125,6 +126,16 @@ def make_runtime(tmp_path, monkeypatch, *, success=True):
     monkeypatch.setenv(
         "AIRIV_SENTINEL_SYSTEMD_PRODUCTION_STATE_DIR",
         str(tmp_path / "production-state"),
+    )
+
+    # Unit tests must never inherit real host enablement from
+    # /etc/airiv-sentinel/gate4-bounded-autonomous.json. Trusted enablement
+    # parsing/ownership semantics are covered independently by the dedicated
+    # Gate 4 enablement tests.
+    monkeypatch.setattr(
+        gate4_runtime_module,
+        "load_gate4_capability",
+        lambda: BoundedAutonomousSystemdCapability(),
     )
 
     runtime = SentinelRuntime()

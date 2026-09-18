@@ -1,70 +1,44 @@
 # Contributing to AIRIV Sentinel
 
-Thank you for helping improve AIRIV Sentinel.
+## Welcome
 
-## Development principles
+Thank you for helping improve AIRIV Sentinel. Contributions should preserve the repository's canonical contracts, safety boundaries, and fail-closed behavior.
 
-AIRIV Sentinel is safety-sensitive systems software. Contributions must preserve the canonical contracts and fail-closed production boundaries.
+## Development Environment
 
-Before changing behavior:
-
-1. Read the relevant files under `contracts/`.
-2. Prefer the smallest complete change that preserves existing authority boundaries.
-3. Add or update behavioral tests.
-4. Do not weaken a safety invariant merely to make a test pass.
-5. Keep production-host effects out of repository CI.
-
-## Local setup
+Use a supported Python environment and install the development dependencies:
 
 ```bash
-git clone https://github.com/arivonto/AIRIV-Sentinel.git
-cd AIRIV-Sentinel
-python3.14 -m venv venv
-venv/bin/python -m pip install --upgrade pip
+python3 -m venv venv
 venv/bin/python -m pip install -r requirements-dev.txt
 ```
 
-Run validation:
+Keep production services, credentials, host-local state, and live remediation outside ordinary development and CI workflows.
 
-```bash
-PYTHONPATH=. venv/bin/python -m compileall -q sentinel tests
-PYTHONPATH=. venv/bin/python -m pytest -q -p no:cacheprovider
-./scripts/public_release_secret_scan.sh
-```
+## Branch Strategy
 
-## Branches and pull requests
+Branch from the current `main` branch. Keep branches focused on one coherent change, rebase stale branches before integration, and avoid unrelated refactors.
 
-- Branch from `main`.
-- Use a focused branch and focused commits.
-- Keep unrelated refactors out of safety changes.
-- Explain the affected contract, invariant, and test evidence in the pull request.
-- GitHub Actions must pass before merge.
+## Commit Convention
 
-## Production and privileged behavior
+Use concise, imperative commit subjects that describe the change. Keep each commit reviewable and avoid mixing implementation, unrelated cleanup, and generated artifacts.
 
-A pull request must not rely on live production effects for ordinary validation. Tests should use controlled doubles/fakes unless a separately governed live-validation milestone explicitly requires host evidence.
+## Coding Standards
 
-Do not add:
+Prefer simple, explicit Python consistent with nearby code. Preserve public APIs and canonical authority boundaries. Do not weaken fail-closed behavior, add undocumented side effects, commit secrets, or create backup files.
 
-- wildcard production remediation targets;
-- implicit privilege expansion;
-- fake Commander approval evidence;
-- silent retries after indeterminate production effects;
-- alternate execution paths that bypass canonical policy or verification;
-- credentials, host secrets, or private environment data.
+## Testing Requirements
 
-## Configuration examples
+Add focused behavioral tests for changed behavior. Run the narrowest relevant tests while iterating, then run the affected integration tests and the full required regression before requesting review. Tests must not perform live production remediation.
 
-Public configuration belongs in example files such as `config/identities.example.yaml`. Machine-specific or confidential configuration must remain untracked.
+## Documentation Requirements
 
-## Backup files
+Update documentation when public behavior, configuration, contracts, setup, or operational expectations change. Keep examples accurate, sanitized, and free of credentials or private host details.
 
-Do not commit `.bak*`, `.pre_*`, `*.identity_backup*`, editor backups, or generated scratch copies. Git history is the source of historical versions.
+## Pull Request Process
 
-## Security issues
+Open a focused pull request against `main`. Describe the change, affected contracts and boundaries, test commands and results, configuration implications, and any remaining risks. Required CI checks must pass before merge.
 
-Do not report vulnerabilities in a public issue. Follow [`SECURITY.md`](SECURITY.md).
+## Code Review Expectations
 
-## License
-
-By contributing, you agree that your contribution is licensed under the Apache License 2.0, consistent with this repository's [`LICENSE`](LICENSE).
+Reviewers prioritize correctness, safety, authority boundaries, regression risk, evidence continuity, and test coverage. Address review findings explicitly and do not bypass failing checks or conceal consequential behavior.

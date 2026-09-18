@@ -17,9 +17,14 @@ from sentinel.systemd_production_bounded_autonomous import (
     BoundedAutonomousSystemdCapability,
     invoke_bounded_autonomous_systemd_production,
 )
+from sentinel.systemd_production_gate4_autonomous_runtime import (
+    Gate4InactiveRestartVerifier,
+)
 from sentinel.systemd_production_target_policy import ACTION_RESTART
 from sentinel.systemd_remediation_safety import (
+    BoundSystemdActionScope,
     SystemdManagerIdentity,
+    SystemdOperation,
     SystemdPrivilegeBoundary,
     SystemdUnitIdentity,
     SystemdUnitSnapshot,
@@ -82,6 +87,19 @@ def snapshot(*, invocation, pid, started):
         main_pid=pid,
         invocation_id=invocation,
         exec_main_start_timestamp_monotonic=started,
+    )
+
+
+def inactive_snapshot():
+    return SystemdUnitSnapshot(
+        identity=target(),
+        load_state="loaded",
+        active_state="inactive",
+        sub_state="dead",
+        unit_file_state="enabled",
+        main_pid=0,
+        invocation_id="",
+        exec_main_start_timestamp_monotonic=0,
     )
 
 
@@ -216,6 +234,62 @@ def test_gate4_exact_probe_executes_without_commander_authorization(
     # Autonomous execution must not manufacture Commander durable evidence.
     gate4_root = tmp_path / "gate4-commander-state-must-not-exist"
     assert not gate4_root.exists()
+
+
+def test_gate4_inactive_restart_verifier_accepts_new_started_process():
+    before = inactive_snapshot()
+    after = snapshot(invocation="b" * 32, pid=1001, started=200000)
+    scope = BoundSystemdActionScope(
+        target=before.identity,
+        operation=SystemdOperation.RESTART,
+        privilege=SystemdPrivilegeBoundary(systemctl_binary=ARGV[0]),
+        expected_pre_active_state="inactive",
+        expected_post_active_state="active",
+        require_new_invocation=True,
+    )
+
+    result = Gate4InactiveRestartVerifier().verify(
+        scope=scope,
+        before=before,
+        after=after,
+    )
+
+    assert result.verified is True
+    assert result.same_target_identity is True
+    assert result.active_after is True
+    assert result.new_invocation is True
+    assert result.reason == "verified_inactive_to_active"
+
+
+def test_gate4_inactive_restart_verifier_rejects_missing_new_process_proof():
+    before = inactive_snapshot()
+    after = SystemdUnitSnapshot(
+        identity=target(),
+        load_state="loaded",
+        active_state="active",
+        sub_state="running",
+        unit_file_state="enabled",
+        main_pid=0,
+        invocation_id="b" * 32,
+        exec_main_start_timestamp_monotonic=0,
+    )
+    scope = BoundSystemdActionScope(
+        target=before.identity,
+        operation=SystemdOperation.RESTART,
+        privilege=SystemdPrivilegeBoundary(systemctl_binary=ARGV[0]),
+        expected_pre_active_state="inactive",
+        expected_post_active_state="active",
+        require_new_invocation=True,
+    )
+
+    result = Gate4InactiveRestartVerifier().verify(
+        scope=scope,
+        before=before,
+        after=after,
+    )
+
+    assert result.verified is False
+    assert result.reason == "systemd_invocation_not_changed"
 
 
 def test_gate4_durable_attempt_budget_blocks_second_execution(

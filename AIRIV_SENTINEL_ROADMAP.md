@@ -1,8 +1,8 @@
 # AIRIV Sentinel Roadmap
 
-> **Status:** ACTIVE / CHANGE-CONTROLLED
-> **Roadmap baseline:** AIRIV Sentinel Project Lock — 2026-09-09
-> **Canonical repository:** `AIRIV-Sentinel` — private canonical source
+> **Status:** ACTIVE / CHANGE-CONTROLLED  
+> **Roadmap baseline:** AIRIV Sentinel Project Lock — 2026-09-09  
+> **Canonical repository:** `AIRIV-Sentinel` — private canonical source  
 > **Public distribution:** `AIRIV-Sentinel-OSS` — curated open-source distribution
 
 ## Purpose
@@ -105,9 +105,12 @@ Governing contracts are LOCKED:
 - `AIRIV_SENTINEL_OBSERVABILITY_FOUNDATION_CONTRACT_V1.md`;
 - `AIRIV_SENTINEL_OBSERVABILITY_METRICS_RECONCILIATION_CONTRACT_V1.md`;
 - `AIRIV_SENTINEL_OBSERVABILITY_ATTENTION_DELIVERY_AI_HEALTH_CONTRACT_V1.md`;
-- `AIRIV_SENTINEL_OBSERVABILITY_RELEASE_UPGRADE_HEALTH_CONTRACT_V1.md`.
+- `AIRIV_SENTINEL_OBSERVABILITY_RELEASE_UPGRADE_HEALTH_CONTRACT_V1.md`;
+- `AIRIV_SENTINEL_OBSERVABILITY_RECOVERY_EVIDENCE_CONTRACT_V1.md`;
+- `AIRIV_SENTINEL_BOUNDED_RESOURCE_MEASUREMENT_CONTRACT_V1.md`.
+- `AIRIV_SENTINEL_SLO_ENFORCEMENT_DECISION_PACKAGE_V1.md`.
 
-Completed passive slices:
+Completed passive/read-only slices:
 
 - daemon/worker liveness and staleness with `UNKNOWN / HEALTHY / UNHEALTHY / STALE`;
 - incident/remediation outcome projection;
@@ -119,9 +122,14 @@ Completed passive slices:
 - artifact-validation health;
 - post-upgrade verification health;
 - duplicate, missing and unknown fact visibility;
-- observed rollback-authority anomaly reported as degradation, never as permission.
+- observed rollback-authority anomaly reported as degradation, never as permission;
+- synthetic/non-production recovery evidence projection with explicit `RECOVERED / NOT_RECOVERED / UNKNOWN` semantics and no effect authority;
+- bounded detached resource-measurement integrity projection with explicit units, bounded input and no host acquisition or SLO enforcement.
+- detached measurement trust/stability evidence-quality projection with explicit source/window identity, duplicate detection and no host acquisition, thresholds, alerting, throttling or remediation.
+- detached non-enforcing SLO definition projection with explicit metric/unit/window/scope identity and no sample evaluation, breach detection, alerting, throttling or remediation.
+- non-executable SLO enforcement decision package with explicit Commander decision fields, mode vocabulary and required preconditions, without granting enforcement authority.
 
-Validated state at this closeout:
+Historical validated state from the earlier observability closeout, before the later recovery-evidence and bounded-resource foundations were added:
 
 - canonical focused Commander regression: **225 PASS**;
 - canonical full regression: **2,252 PASS**;
@@ -131,34 +139,118 @@ Validated state at this closeout:
 - canonical CI + Public Distribution: **PASS**;
 - curated OSS source parity CI: **PASS**.
 
+These historical counts are retained as closeout evidence only and MUST NOT be presented as current-suite counts after later merges.
+
 **Current boundary:** PASSIVE FOUNDATION CORE ADVANCED. Observability has no remediation, execution, deployment, rollback, provider or Incident-lifecycle authority.
 
-### ACTIVE SAFE NEXT — Recovery Evidence & Failure Injection Foundation
+### Recovery Evidence Foundation — IMPLEMENTED / CONTRACT LOCKED
 
-Next work may establish deterministic, non-production recovery/failure-injection evidence for known failure classes without executing remediation. Required properties:
+Canonical implementation and focused tests now exist for deterministic recovery evidence over caller-supplied synthetic/non-production facts. The projection preserves unknown/ambiguous evidence, rejects production-scoped or effect-attempting records as successful recovery proof, and does not inject faults, execute remediation, invoke verification or mutate Incident state.
 
-- synthetic/deterministic test inputs only at foundation stage;
-- explicit injected-failure identity;
-- before/after observation continuity;
-- expected recovery-state classification;
-- `UNKNOWN` for incomplete or ambiguous recovery evidence;
-- no automatic restart/remediation/rollback;
-- no production fault injection;
-- no authority inferred from test outcomes.
+This status does **not** authorize production fault injection or recovery execution.
+
+### Bounded Resource Measurement Foundation — IMPLEMENTED / CONTRACT LOCKED
+
+Canonical implementation and focused tests now exist for bounded, deterministic validation of caller-supplied resource samples. The foundation preserves fixed units, malformed/partial/unknown distinctions, duplicate identity and input truncation while remaining detached from host metric acquisition.
+
+This status does **not** define SLO thresholds, poll production processes, alert, throttle or authorize remediation.
+
+### Restart / Upgrade Continuity Evidence Hardening — IMPLEMENTED / INTEGRATED
+
+PR #43 strengthens passive continuity evidence across restart and upgrade observations without creating a new execution, restart or rollback path. Integrated properties:
+
+- exact observed artifact/runtime identity where available;
+- explicit before/after continuity facts;
+- preserved `UNKNOWN` when identity or continuity is incomplete;
+- no inference that continuity evidence authorizes an effect;
+- no automatic restart, deployment or rollback;
+- deterministic/read-only tests only at foundation stage.
+
+### Measurement Trust / Stability Evaluation — IMPLEMENTED / CONTRACT LOCKED
+
+Implemented trust/stability evaluation projects detached measurement evidence quality without acquiring host metrics, defining enforcement thresholds, polling production processes, alerting, throttling, or authorizing remediation. Integrated properties:
+
+- caller-supplied measurement facts only;
+- explicit source identity and observation-window metadata where available;
+- preserved `UNKNOWN` when source trust, units, timestamp, or continuity is incomplete;
+- duplicate or contradictory samples reported as degradation;
+- no SLO enforcement, alerting, throttling, restart, deployment, rollback, provider call, or lifecycle mutation;
+- deterministic/read-only tests only at foundation stage.
+
+### Non-Enforcing SLO Definitions — IMPLEMENTED / CONTRACT LOCKED
+
+Implemented non-enforcing SLO definition projection defines descriptive SLO vocabulary and detached target records without evaluating live host state, comparing samples, detecting breaches, alerting, throttling, restart, deployment, rollback, provider calls, lifecycle mutation, or remediation authorization. SLO definitions remain descriptive planning evidence until a separate future authority decision explicitly permits enforcement.
+
+Integrated properties:
+
+- caller-supplied SLO definition facts only;
+- explicit metric, objective relation/value/unit, observation-window and effective-scope identity;
+- preserved `UNKNOWN` when required definition facts are missing;
+- malformed or duplicate definition identities reported as degradation;
+- no sample evaluation, breach status, alerting, throttling, restart, deployment, rollback, provider call, or lifecycle mutation;
+- deterministic/read-only tests only at foundation stage.
+
+### SLO Enforcement Decision Package — IMPLEMENTED / NON-EXECUTABLE
+
+Implemented a non-executable decision package that defines the exact Commander decision record required before future SLO enforcement design may begin. It preserves the separation between descriptive SLO definitions, evidence-quality facts, reporting-only analysis, Commander-confirmed proposals and any future autonomous bounded enforcement.
+
+Integrated properties:
+
+- explicit decision identity, Commander authority identity, approved scope, SLO definition IDs, measurement source IDs and freshness window requirements;
+- explicit mode vocabulary: `REPORT_ONLY`, `COMMANDER_CONFIRM`, `AUTONOMOUS_BOUNDED`;
+- required blast-radius, cooldown, retry-budget, verification, rollback-position, production-activation and expiration facts;
+- fail-closed handling for missing, ambiguous, contradictory, stale or non-durable decision facts;
+- no live host metric acquisition, production breach detection, external alerting, throttling, restart, deployment, rollback, provider call, remediation authorization or Incident lifecycle mutation.
+
+### ACTIVE SAFE NEXT — SLO Enforcement Authority Review
+
+Commander decision recorded for a bounded passive scope: `sentinel-passive-observability-v1`,
+`REPORT_ONLY`, with `report_projection` as the sole allowed consequence and no
+specified SLO definitions or measurement sources. The decision enables only
+the pure validation of this authority record; it does not authorize live
+measurement acquisition or any consequential effect.
+
+### SLO Report-Only Authority — IMPLEMENTED / NON-EXECUTABLE
+
+The report-only authority contract and validator are integrated as a pure,
+fail-closed boundary. Expiry, timestamp durability, mode, consequence, scope,
+and identity completeness are validated locally. No runtime wiring or
+production activation is implied.
+
+### Bounded Pilot Host Evidence Projection — IMPLEMENTED / ACTIVATION PENDING
+
+Implemented side-effect-free projection from caller-supplied host evidence into
+the bounded pilot verification gate. The projection preserves exact service
+identity, active/running state, PID presence, runtime identity continuity,
+journal continuity, evidence-path validation and fail-closed reasons without
+querying systemd, reading the journal, installing helpers, restarting Sentinel,
+executing remediation or activating production.
+
+### Commander Web / Desktop Surface Projection — IMPLEMENTED / READ-ONLY
+
+The shared `sentinel/commander_surface.py` projection and [payload contract](contracts/AIRIV_SENTINEL_COMMANDER_SURFACE_PAYLOAD_CONTRACT_V1.md) are the first cross-surface
+foundation for Sentinel Web and Sentinel Desktop. It accepts detached facts and
+returns deterministic `READY`, `BLOCKED`, or `UNKNOWN` display state while
+preserving exact service identity, evidence completeness, and
+`PRODUCTION_EFFECT=NONE`. The projection also exposes the stable
+`airiv.sentinel.commander_surface.v1` payload for independent surface clients.
+
+The Web surface now exposes the boundary in the project dashboard. Desktop now
+has a toolkit-neutral view model consuming the same projection contract, not a
+second authority path. A native window toolkit remains a separate presentation
+decision.
+Neither surface may query systemd, read journals, execute commands, mutate
+Incident lifecycle, authorize remediation, or activate production.
 
 ### FOLLOWING SAFE SLICES
 
-1. bounded resource-use measurements;
-2. restart/upgrade continuity evidence hardening;
-3. measurement trust/stability evaluation;
-4. non-enforcing SLO definitions;
-5. SLO enforcement only under a separate future authority decision.
+1. SLO enforcement design remains separately gated and may begin only after a new explicit Commander authority decision selects non-reporting scope, mode and allowed consequences.
 
 ## Bounded Production Target Expansion — PLANNED / COMMANDER-REVIEWED
 
 Each additional autonomous production target requires exact identity, action allowlist, blast radius, cooldown, retry window, concurrency constraint, exact-effect continuity, independent post-effect verification and durable attempt evidence. No generic restart-anything or unrestricted shell authority is permitted.
 
-## Canonical AIRIV Event+Job Integration — DEPENDENCY-GATDd
+## Canonical AIRIV Event+Job Integration — DEPENDENCY-GATED
 
 Sentinel may integrate only with the canonical AIRIV Event+Job Foundation and must not create a parallel Event Bus or Job Worker. Work begins only when the AIRIV platform adapter/interface is stable enough to consume without Sentinel inventing platform semantics.
 
@@ -176,9 +268,7 @@ A slice is DONE only when implementation matches governing contracts, success an
 
 ## Immediate execution order
 
-1. **Recovery Evidence & Failure Injection Foundation** — ACTIVE SAFE NEXT.
-2. **Bounded Resource-use Measurements**.
-3. **Restart/Upgrade Continuity Evidence Hardening**.
-4. **Measurement Trust + Non-enforcing SLO Definition**.
+1. **SLO Enforcement Authority Review** — ACTIVE SAFE NEXT / Commander decision required.
+2. **SLO Enforcement Design** — starts only after explicit Commander authority decision.
 
-Live AI providers, external Commander delivery, new production targets, production fault injection and rollback execution remain separately decision-gated.
+SLO enforcement, live AI providers, external Commander delivery, new production targets, production fault injection and rollback execution remain separately decision-gated.

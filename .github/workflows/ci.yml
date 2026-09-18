@@ -6,10 +6,13 @@ on:
   push:
     branches:
       - main
-      - engineering/**
 
 permissions:
   contents: read
+
+concurrency:
+  group: airiv-sentinel-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   tests:
@@ -19,9 +22,32 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
+
+      - name: Reject stale main ancestry
+        shell: bash
+        env:
+          CANDIDATE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          test -n "$CANDIDATE_SHA"
+          git cat-file -e "${CANDIDATE_SHA}^{commit}"
+
+          MAIN_SHA="$(git rev-parse origin/main)"
+          if ! git merge-base --is-ancestor "$MAIN_SHA" "$CANDIDATE_SHA"; then
+            echo "::error::Branch is stale relative to origin/main. Rebase or cherry-pick onto latest main; CI will not auto-resolve conflicts."
+            echo "ORIGIN_MAIN=$MAIN_SHA"
+            echo "CANDIDATE_SHA=$CANDIDATE_SHA"
+            exit 1
+          fi
+
+          echo "MAIN_ANCESTRY=PASS"
+          echo "STALE_MAIN_GATE=PASS"
+          echo "ORIGIN_MAIN=$MAIN_SHA"
+          echo "CANDIDATE_SHA=$CANDIDATE_SHA"
 
       - name: Public release security and hygiene scan
         shell: bash
@@ -30,16 +56,102 @@ jobs:
           bash scripts/public_release_secret_scan.sh
 
       - name: Set up Python 3.14
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: '3.14'
           cache: pip
-          cache-dependency-path: requirements-dev.txt
+          cache-dependency-path: requirements-dev-lock.txt
 
-      - name: Install test dependencies
+      - name: Install locked test dependencies
+        shell: bash
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements-dev.txt
+          set -euo pipefail
+          CI_PIP_VERSION="26.2.1"
+          python -m pip install "pip==${CI_PIP_VERSION}"
+          PIP_VERSION="$(python -m pip --version | awk '{print $2}')"
+          if [[ "$PIP_VERSION" != "$CI_PIP_VERSION" ]]; then
+            echo "::error::pip bootstrap contract violated: expected $CI_PIP_VERSION, got $PIP_VERSION"
+            exit 1
+          fi
+          echo "PIP_BOOTSTRAP_CONTRACT=PASS"
+          echo "PIP_VERSION=$PIP_VERSION"
+          python -m pip install -r requirements-dev-lock.txt
+
+      - name: Verify dependency contract
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from importlib.metadata import version
+          from pathlib import Path
+
+          policy_path = Path("requirements-dev.txt")
+          policy_lines = [
+              line.strip()
+              for line in policy_path.read_text(encoding="utf-8").splitlines()
+              if line.strip() and not line.lstrip().startswith("#")
+          ]
+          expected_policy = ["pytest>=8.4,<9", "PyYAML>=6.0,<7"]
+          if policy_lines != expected_policy:
+              print("::error::requirements-dev.txt drifted from the reviewed CI dependency contract")
+              print(f"EXPECTED_DEV_DEPENDENCY_COUNT={len(expected_policy)}")
+              print(f"ACTUAL_DEV_DEPENDENCY_COUNT={len(policy_lines)}")
+              raise SystemExit(1)
+          print("DEV_DEPENDENCY_MANIFEST=PASS")
+
+          lock_path = Path("requirements-dev-lock.txt")
+          lock_lines = [
+              line.strip()
+              for line in lock_path.read_text(encoding="utf-8").splitlines()
+              if line.strip() and not line.lstrip().startswith("#")
+          ]
+          expected_lock = [
+              "pytest==8.4.2",
+              "PyYAML==6.0.3",
+              "iniconfig==2.3.0",
+              "packaging==26.3",
+              "pluggy==1.6.0",
+              "Pygments==2.21.0",
+          ]
+          if lock_lines != expected_lock:
+              print("::error::requirements-dev-lock.txt drifted from the reviewed resolved dependency set")
+              print(f"EXPECTED_LOCKED_DEPENDENCY_COUNT={len(expected_lock)}")
+              print(f"ACTUAL_LOCKED_DEPENDENCY_COUNT={len(lock_lines)}")
+              raise SystemExit(1)
+
+          for spec in expected_lock:
+              name, expected_version = spec.split("==", 1)
+              actual_version = version(name)
+              if actual_version != expected_version:
+                  print(
+                      f"::error::resolved dependency drift: {name} expected "
+                      f"{expected_version}, got {actual_version}"
+                  )
+                  raise SystemExit(1)
+          print("DEV_DEPENDENCY_LOCK=PASS")
+          PY
+
+          python -m pip check
+
+          PYTEST_VERSION="$(python -m pytest --version | awk '{print $2}')"
+          case "$PYTEST_VERSION" in
+            8.*) ;;
+            *)
+              echo "::error::pytest contract violated: expected >=8.4,<9, got $PYTEST_VERSION"
+              exit 1
+              ;;
+          esac
+
+          MINIMUM="8.4"
+          FIRST="$(printf '%s\n' "$MINIMUM" "$PYTEST_VERSION" | sort -V | head -n1)"
+          if [[ "$FIRST" != "$MINIMUM" ]]; then
+            echo "::error::pytest contract violated: expected >=8.4,<9, got $PYTEST_VERSION"
+            exit 1
+          fi
+
+          echo "PYTEST_CONTRACT=PASS"
+          echo "PYTEST_VERSION=$PYTEST_VERSION"
 
       - name: Prepare host-compatible Python path
         run: |
@@ -47,22 +159,34 @@ jobs:
           ln -sf "$(command -v python)" venv/bin/python
           test -x venv/bin/python
 
-      - name: Check patch hygiene
+      - name: Check whole-candidate patch hygiene
+        shell: bash
+        env:
+          CANDIDATE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          git cat-file -e "${CANDIDATE_SHA}^{commit}"
+
+          if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
+            BASE_SHA="${CANDIDATE_SHA}^"
+            git cat-file -e "${BASE_SHA}^{commit}"
+          else
+            BASE_SHA="$(git rev-parse origin/main)"
+          fi
+
+          git diff --check "$BASE_SHA" "$CANDIDATE_SHA"
+          echo "PATCH_HYGIENE=PASS"
+          echo "PATCH_HYGIENE_BASE=$BASE_SHA"
+          echo "PATCH_HYGIENE_CANDIDATE=$CANDIDATE_SHA"
+
+      - name: Validate project documentation and disclosure boundary
         shell: bash
         run: |
           set -euo pipefail
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            git diff --check "${{ github.event.pull_request.base.sha }}" "${{ github.sha }}"
-          elif git rev-parse HEAD^ >/dev/null 2>&1; then
-            git diff --check HEAD^ HEAD
-          else
-            git diff --check
-          fi
-
-      - name: Validate project documentation and disclosure boundary
-        run: |
           python -m py_compile scripts/validate_project_docs.py
           python scripts/validate_project_docs.py
+          echo "DISCLOSURE_GATE=PASS"
 
       - name: Compile Sentinel and tests
         env:
@@ -70,36 +194,152 @@ jobs:
         run: |
           python -m compileall -q sentinel tests
 
+      - name: Verify pytest discovery integrity
+        env:
+          PYTHONPATH: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          collection="$RUNNER_TEMP/airiv-pytest-collection.txt"
+          python -m pytest --collect-only -q -p no:cacheprovider > "$collection"
+          python - "$collection" <<'PY'
+          from pathlib import Path
+          import subprocess
+          import sys
+
+          collection_path = Path(sys.argv[1])
+          tracked_raw = subprocess.check_output(
+              ["git", "ls-files", "-z", "--", "tests"]
+          )
+          tracked = sorted(
+              path
+              for raw_path in tracked_raw.split(b"\0")
+              if raw_path
+              for path in [raw_path.decode("utf-8", errors="surrogateescape")]
+              if Path(path).name.startswith("test_") and Path(path).suffix == ".py"
+          )
+          if not tracked:
+              print("::error::no tracked test modules found under tests/")
+              raise SystemExit(1)
+
+          modules = set()
+          items = 0
+          for raw in collection_path.read_text(encoding="utf-8").splitlines():
+              line = raw.strip()
+              if not line.startswith("tests/") or "::" not in line:
+                  continue
+              modules.add(line.split("::", 1)[0])
+              items += 1
+
+          missing = [path for path in tracked if path not in modules]
+          if missing:
+              print("::error::tracked test module(s) produced no collected tests")
+              for path in missing:
+                  print(f"MISSING_COLLECTED_TEST_MODULE={path}")
+              raise SystemExit(1)
+          if items == 0:
+              print("::error::pytest collection produced zero tests")
+              raise SystemExit(1)
+
+          print(f"TEST_DISCOVERY_FILES={len(tracked)}")
+          print(f"TEST_DISCOVERY_ITEMS={items}")
+          print("TEST_DISCOVERY_INTEGRITY=PASS")
+          PY
+
+      - name: Verify pytest host isolation contract
+        env:
+          PYTHONPATH: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pytest -q -p no:cacheprovider tests/test_ci_host_isolation_contract_v1.py
+          echo "HOST_ISOLATION=PASS"
+
       - name: Run production Commander boundary regression
         env:
           PYTHONPATH: .
         shell: bash
         run: |
           set -euo pipefail
-          mapfile -t focused < <(
-            find tests -maxdepth 1 -type f \
-              \( \
-                -name 'test_systemd_commander_integration*.py' -o \
-                -name 'test_systemd_production_commander*.py' -o \
-                -name 'test_systemd_production_activation_runtime*.py' -o \
-                -name 'test_systemd_production_runtime_delegation*.py' -o \
-                -name 'test_systemd_production_execution_delegation*.py' -o \
-                -name 'test_systemd_production_explicit_runtime*.py' \
-              \) \
-              -print | sort
+
+          required=(
+            tests/test_systemd_production_commander_only_policy_v1.py
+            tests/test_systemd_production_commander_auth_dependency_closure_v1.py
+            tests/test_systemd_production_commander_authorization_handoff_v1.py
+            tests/test_systemd_production_commander_activation_issuance_v1.py
+            tests/test_systemd_production_commander_activation_binding_v1.py
+            tests/test_systemd_production_commander_activation_consumption_v1.py
+            tests/test_systemd_production_execution_delegation_v1.py
+            tests/test_systemd_production_runtime_delegation_bridge_v1.py
+            tests/test_systemd_production_activation_runtime_bridge_v1.py
+          )
+          for path in "${required[@]}"; do
+            if [[ ! -f "$path" ]]; then
+              echo "::error::required Commander-boundary regression missing: $path"
+              exit 1
+            fi
+          done
+
+          mapfile -d '' -t focused < <(
+            git ls-files -z -- \
+              ':(glob)tests/**/test_systemd_commander_integration*.py' \
+              ':(glob)tests/**/test_systemd_production_commander*.py' \
+              ':(glob)tests/**/test_systemd_production_activation_runtime*.py' \
+              ':(glob)tests/**/test_systemd_production_runtime_delegation*.py' \
+              ':(glob)tests/**/test_systemd_production_execution_delegation*.py' \
+              ':(glob)tests/**/test_systemd_production_explicit_runtime*.py'
           )
 
           if (( ${#focused[@]} == 0 )); then
-            echo 'FAIL: no production Commander boundary tests discovered'
+            echo '::error::no Git-tracked production Commander boundary tests discovered'
             exit 1
           fi
 
-          printf 'Focused tests (%d):\n' "${#focused[@]}"
+          printf 'Focused Git-tracked tests (%d):\n' "${#focused[@]}"
           printf ' - %s\n' "${focused[@]}"
+          echo "COMMANDER_DISCOVERY_COUNT=${#focused[@]}"
+          echo "COMMANDER_DISCOVERY=PASS"
           python -m pytest -q -p no:cacheprovider "${focused[@]}"
+          echo "COMMANDER_BOUNDARY=PASS"
 
       - name: Run full regression
+        if: github.event_name == 'pull_request'
         env:
           PYTHONPATH: .
+        shell: bash
         run: |
+          set -euo pipefail
           python -m pytest -q -p no:cacheprovider
+
+      - name: Revalidate main and report Lane 5 CI acceptance
+        shell: bash
+        env:
+          CANDIDATE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          test -n "$CANDIDATE_SHA"
+          git cat-file -e "${CANDIDATE_SHA}^{commit}"
+
+          FINAL_MAIN_SHA="$(git rev-parse origin/main)"
+          if ! git merge-base --is-ancestor "$FINAL_MAIN_SHA" "$CANDIDATE_SHA"; then
+            echo "::error::origin/main advanced during CI; exact candidate must be revalidated on current main before integration."
+            echo "FINAL_ORIGIN_MAIN=$FINAL_MAIN_SHA"
+            echo "CANDIDATE_SHA=$CANDIDATE_SHA"
+            exit 1
+          fi
+
+          echo "FINAL_MAIN_ANCESTRY=PASS"
+          echo "STALE_MAIN_FINAL_GATE=PASS"
+          echo "FINAL_ORIGIN_MAIN=$FINAL_MAIN_SHA"
+          echo "CANDIDATE_SHA=$CANDIDATE_SHA"
+          echo "CI_SELF_TEST=PASS"
+          echo "PIP_BOOTSTRAP_CONTRACT=PASS"
+          echo "DEV_DEPENDENCY_LOCK=PASS"
+          echo "HOST_ISOLATION=PASS"
+          echo "COMMANDER_DISCOVERY=PASS"
+          echo "COMMANDER_BOUNDARY=PASS"
+          echo "STALE_MAIN_GATE=PASS"
+          echo "PATCH_HYGIENE=PASS"
+          echo "SECURITY_GATES=PASS"
+          echo "PRODUCTION_EFFECT=NONE"

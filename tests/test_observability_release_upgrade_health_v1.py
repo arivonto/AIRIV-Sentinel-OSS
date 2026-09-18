@@ -8,9 +8,11 @@ from sentinel.worker.release_health import (
     PostUpgradeVerificationHealthProjection,
     ProjectionHealth,
     ReleaseReadinessHealthProjection,
+    RestartUpgradeContinuityHealthProjection,
     project_artifact_validation_health,
     project_post_upgrade_verification_health,
     project_release_readiness,
+    project_restart_upgrade_continuity_health,
 )
 
 
@@ -102,6 +104,84 @@ def test_empty_observation_sets_are_unknown_not_synthetic_success():
     assert project_post_upgrade_verification_health([]) == PostUpgradeVerificationHealthProjection(
         0, 0, 0, 0, 0, 0, ProjectionHealth.UNKNOWN
     )
+    assert project_restart_upgrade_continuity_health([]) == RestartUpgradeContinuityHealthProjection(
+        0, 0, 0, 0, 0, 0, ProjectionHealth.UNKNOWN
+    )
+
+
+def test_restart_upgrade_continuity_projection_preserves_continuous_observations():
+    projection = project_restart_upgrade_continuity_health([
+        {
+            "observation_id": "C-1",
+            "before_identity": "runtime@abc",
+            "after_identity": "runtime@abc",
+            "continuity_status": "CONTINUOUS",
+            "effect_authorized": False,
+        },
+    ])
+
+    assert projection == RestartUpgradeContinuityHealthProjection(
+        total_records=1,
+        continuous_count=1,
+        changed_count=0,
+        unknown_record_count=0,
+        duplicate_observation_id_count=0,
+        authority_violation_count=0,
+        health=ProjectionHealth.HEALTHY,
+    )
+
+
+def test_restart_upgrade_continuity_projection_preserves_change_unknown_and_duplicates():
+    projection = project_restart_upgrade_continuity_health([
+        {
+            "observation_id": "C-1",
+            "before_identity": "runtime@abc",
+            "after_identity": "runtime@def",
+            "continuity_status": "CHANGED",
+            "effect_authorized": False,
+        },
+        {
+            "observation_id": "C-1",
+            "before_identity": "runtime@abc",
+            "after_identity": "runtime@abc",
+            "continuity_status": "CONTINUOUS",
+            "effect_authorized": False,
+        },
+        {
+            "observation_id": "C-3",
+            "before_identity": "",
+            "after_identity": "runtime@ghi",
+            "continuity_status": "UNKNOWN",
+            "effect_authorized": False,
+        },
+    ])
+
+    assert projection == RestartUpgradeContinuityHealthProjection(
+        total_records=3,
+        continuous_count=1,
+        changed_count=1,
+        unknown_record_count=1,
+        duplicate_observation_id_count=1,
+        authority_violation_count=0,
+        health=ProjectionHealth.DEGRADED,
+    )
+
+
+def test_restart_upgrade_continuity_projection_rejects_authority_and_conflict_as_health():
+    projection = project_restart_upgrade_continuity_health([
+        {
+            "observation_id": "C-1",
+            "before_identity": "runtime@abc",
+            "after_identity": "runtime@def",
+            "continuity_status": "CONTINUOUS",
+            "effect_authorized": True,
+        },
+    ])
+
+    assert projection.changed_count == 1
+    assert projection.unknown_record_count == 1
+    assert projection.authority_violation_count == 1
+    assert projection.health is ProjectionHealth.DEGRADED
 
 
 def test_projection_outputs_are_immutable_and_deterministic():

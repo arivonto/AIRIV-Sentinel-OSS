@@ -13,9 +13,11 @@ printf '%s\n' '============================================================'
 printf '%s\n' ' AIRIV SENTINEL — PUBLIC RELEASE SECURITY / HYGIENE SCAN'
 printf '%s\n' '============================================================'
 
+# Historical source versions belong in Git history, not beside canonical files.
 mapfile -t backup_files < <(
     git ls-files | grep -E '(^|/).*(\.bak([._-]|$)|\.pre_|\.identity_backup\.|~$|\.orig$|\.rej$)' || true
 )
+
 if (( ${#backup_files[@]} )); then
     printf 'Tracked backup/scratch files detected:\n' >&2
     printf ' - %s\n' "${backup_files[@]}" >&2
@@ -23,6 +25,8 @@ if (( ${#backup_files[@]} )); then
 fi
 printf 'CURRENT_TREE_BACKUP_HYGIENE=PASS\n'
 
+# Filenames that are commonly secret-bearing. Fail closed even when their
+# current content happens not to match a known token pattern.
 mapfile -t forbidden_files < <(
     git ls-files | grep -E '(^|/)(\.env($|\.)|credentials\.json$|secrets\.json$|auth\.json$|service-account[^/]*\.json$|\.netrc$|\.npmrc$|kubeconfig$|id_rsa$|id_ed25519$)|\.(pem|key|p12|pfx|jks|keystore|token|secret)$' || true
 )
@@ -33,6 +37,7 @@ if (( ${#forbidden_files[@]} )); then
 fi
 printf 'CURRENT_TREE_SECRET_FILENAMES=PASS\n'
 
+# High-confidence credential patterns. Candidate values are never printed.
 patterns=(
     '-----BEGIN ([A-Z0-9]+ )*PRIVATE KEY-----'
     'gh[pousr]_[A-Za-z0-9_]{20,}'
@@ -51,20 +56,23 @@ patterns=(
 mapfile -t commits < <(git rev-list --all)
 (( ${#commits[@]} > 0 )) || fail 'no reachable commits found'
 
+# Scan each reachable blob once. The previous commit/pattern nested loop
+# re-read the same historical content thousands of times on long-lived repos.
+combined_pattern=$(IFS='|'; printf '%s' "${patterns[*]}")
+declare -A scanned_blobs=()
 hits=0
-for commit in "${commits[@]}"; do
-    for pattern in "${patterns[@]}"; do
-        mapfile -t files < <(
-            git grep -I -l -E "$pattern" "$commit" -- . \
-                ':(exclude)scripts/public_release_secret_scan.sh' 2>/dev/null || true
-        )
-        if (( ${#files[@]} )); then
-            hits=1
-            printf 'Potential credential pattern at commit %s in:\n' "$commit" >&2
-            printf ' - %s\n' "${files[@]}" >&2
-        fi
-    done
-done
+while IFS= read -r object_id path; do
+    [[ -n "$object_id" && -n "$path" ]] || continue
+    [[ "$path" == 'scripts/public_release_secret_scan.sh' ]] && continue
+    [[ -n "${scanned_blobs[$object_id]+x}" ]] && continue
+    scanned_blobs["$object_id"]=1
+
+    if git cat-file blob "$object_id" | grep -I -q -E "$combined_pattern"; then
+        hits=1
+        printf 'Potential credential pattern in reachable history at blob %s:\n' "$object_id" >&2
+        printf ' - %s\n' "$path" >&2
+    fi
+done < <(git rev-list --objects --all)
 
 (( hits == 0 )) || fail 'potential credential material exists in reachable Git history'
 printf 'REACHABLE_HISTORY_HIGH_CONFIDENCE_SECRET_SCAN=PASS\n'

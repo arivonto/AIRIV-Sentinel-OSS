@@ -16,6 +16,7 @@ import uuid
 
 from sentinel.incidents.manager import Incident
 from sentinel.systemd_canary_live_observability import atomic_write, process_identity
+from sentinel.systemd_commander_integration import SystemdCommanderIntegration
 from sentinel.systemd_evidence import (
     TrustedSystemdEvidenceRecord,
     TrustedSystemdEvidenceStore,
@@ -36,6 +37,8 @@ from sentinel.systemd_production_target_policy import ACTION_RESTART
 from sentinel.systemd_remediation_safety import (
     SystemdPrivilegeBoundary,
     SystemdReadOnlyInspector,
+    SystemdRestartVerification,
+    SystemdRestartVerifier,
     SystemdUnitSnapshot,
 )
 
@@ -48,6 +51,56 @@ def default_root():
         / "airiv-sentinel-secure"
         / "gate4_bounded_autonomous"
     )
+
+
+class Gate4InactiveRestartVerifier(SystemdRestartVerifier):
+    """Gate 4 verifier for an already-unhealthy production probe.
+
+    systemd clears InvocationID when an inactive unit has no current
+    invocation. The generic restart verifier correctly requires a before/after
+    InvocationID change for active-to-active restarts, but that proof is
+    unavailable after Gate 4 observes an already-inactive unit. In that one
+    case, require a newly materialized post-effect InvocationID plus a running
+    PID and a strictly newer ExecMainStartTimestampMonotonic.
+    """
+
+    def verify(self, *, scope, before, after):
+        generic = super().verify(scope=scope, before=before, after=after)
+        if generic.verified:
+            return generic
+
+        if generic.reason != "systemd_invocation_not_changed":
+            return generic
+
+        inactive_before = (
+            before.active_state != "active"
+            and not before.invocation_id
+            and before.main_pid == 0
+        )
+        active_after = (
+            after.load_state == "loaded"
+            and after.active_state == scope.expected_post_active_state
+            and after.sub_state == "running"
+            and after.main_pid > 0
+            and bool(after.invocation_id)
+        )
+        newer_start = (
+            after.exec_main_start_timestamp_monotonic
+            > before.exec_main_start_timestamp_monotonic
+        )
+
+        if not (inactive_before and active_after and newer_start):
+            return generic
+
+        return SystemdRestartVerification(
+            verified=True,
+            same_target_identity=True,
+            active_after=True,
+            new_invocation=True,
+            before_target_fingerprint=before.identity.fingerprint,
+            after_target_fingerprint=after.identity.fingerprint,
+            reason="verified_inactive_to_active",
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -91,6 +144,15 @@ class SystemdProductionGate4AutonomousRuntime:
         )
         if not callable(self.clock) or not callable(self.snapshot_provider):
             raise TypeError("clock and snapshot_provider must be callable")
+
+        # Gate 4 uses the canonical integration type and the runtime's canonical
+        # Commander authority, but with a verifier that understands the exact
+        # inactive -> active recovery case. Commander/Gate 3 integration remains
+        # untouched.
+        self.integration = SystemdCommanderIntegration(
+            self.runtime.commander,
+            verifier=Gate4InactiveRestartVerifier(),
+        )
 
     @staticmethod
     def _healthy(snapshot):
@@ -195,7 +257,7 @@ class SystemdProductionGate4AutonomousRuntime:
 
             autonomous = invoke_bounded_autonomous_systemd_production(
                 capability=self.capability,
-                integration=self.runtime.systemd_production_integration,
+                integration=self.integration,
                 catalog=self.runtime.remediation_action_catalog,
                 prepared=prepared,
                 incident_state="INVESTIGATING",

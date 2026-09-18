@@ -1,59 +1,58 @@
-# AIRIV Sentinel local/runtime state
 
-# Keep explicit examples
 !.env.example
-
-# Editor/system
-.DS_Store
-.idea/
-.vscode/
-*~
-*.orig
-*.rej
-
-# Python/tooling
-*.py[cod]
-__pycache__/
-.coverage
-.mypy_cache/
-.pytest_cache/
-.ruff_cache/
-.venv/
-venv/
-build/
-dist/
-htmlcov/
-
-# Local secrets/configuration
-.env
-.env.*
-*.key
-*.pem
-*.p12
-*.pfx
-*.jks
-*.keystore
-*.token
-*.secret
-credentials.json
-secrets.json
-auth.json
-service-account*.json
-.netrc
-.npmrc
-kubeconfig
-id_ed25519
-id_rsa
-
-# Runtime/evidence state — never source controlled
-*.log
-*.pid
-logs/
-var/
-
+# AIRIV Sentinel local/runtime state
 # Development scratch / backup files — Git history is the backup
+# Editor/system
+# Keep explicit examples
+# Local secrets/configuration
+# Python/tooling
+# Runtime/evidence state — never source controlled
 *.bak
 *.bak.*
 *.bak_*
 *.identity_backup.*
+*.jks
+*.key
+*.keystore
+*.log
+*.orig
+*.p12
+*.pem
+*.pfx
+*.pid
 *.pre_*
+*.py[cod]
+*.pyc
+*.pyo
+*.rej
+*.secret
+*.token
+*~
+.DS_Store
+.coverage
+.env
+.env.*
+.idea/
+.mypy_cache/
+.netrc
+.npmrc
+.pytest_cache/
+.ruff_cache/
+.venv/
+.vscode/
+__pycache__/
+auth.json
+build/
+credentials.json
+dist/
+htmlcov/
+id_ed25519
+id_rsa
+kubeconfig
+logs/
+output/
+secrets.json
+service-account*.json
+tmp/
+var/
+venv/

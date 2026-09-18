@@ -15,12 +15,13 @@ if TYPE_CHECKING:
 
 
 class SentinelRuntimeWorker:
-    """Wrap one supplied runtime using its public start/stop operations.
+    """Wrap one supplied runtime using its public lifecycle and health APIs.
 
     The runtime retains ownership of its diagnostic background worker. This
-    adapter creates no threads and does not schedule runtime cycles. Health
-    reports adapter availability only: the runtime has no operational health
-    API, so diagnostic-thread failures cannot be inferred here.
+    adapter creates no threads and does not schedule runtime cycles. Health is
+    a passive fail-closed projection of both adapter state and the canonical
+    runtime reliability snapshot; it never starts, stops, recovers, or mutates
+    the runtime.
 
     Uptime measures adapter lifetime from construction, including stopped time;
     both uptime and heartbeat iteration persist across restarts. Transitional
@@ -86,9 +87,31 @@ class SentinelRuntimeWorker:
         with self._lock:
             self._transition(WorkerState.STOPPED)
 
+    def _runtime_running(self) -> bool:
+        """Read canonical runtime liveness without holding the worker lock."""
+        try:
+            snapshot = self._runtime.get_runtime_health()
+            return snapshot.running is True
+        except Exception:
+            # An unavailable or malformed passive health projection is not
+            # evidence of liveness. Preserve fail-closed semantics.
+            return False
+
     def health(self) -> bool:
         with self._lock:
-            return self._state is WorkerState.RUNNING and self._last_error is None
+            if self._state is not WorkerState.RUNNING or self._last_error is not None:
+                return False
+
+        runtime_running = self._runtime_running()
+
+        # Re-check adapter state after the external passive read. A concurrent
+        # stop/failure must not be reported healthy based on a stale pre-read.
+        with self._lock:
+            return (
+                self._state is WorkerState.RUNNING
+                and self._last_error is None
+                and runtime_running
+            )
 
     def report_failure(self, message: str) -> None:
         """Record a known operational failure supplied by the runtime owner.
@@ -106,13 +129,23 @@ class SentinelRuntimeWorker:
             self._last_error = message
 
     def heartbeat(self) -> WorkerHeartbeat:
+        # health() performs a passive runtime read outside the worker lock.
+        # Capture iteration first, then reconcile current state after that read
+        # so a concurrent transition can only make the heartbeat less healthy.
         with self._lock:
             self._iteration += 1
+            iteration = self._iteration
+
+        healthy = self.health()
+
+        with self._lock:
+            if self._state is not WorkerState.RUNNING or self._last_error is not None:
+                healthy = False
             return WorkerHeartbeat(
                 worker_id=self._worker_id,
                 state=self._state,
                 timestamp=datetime.now(timezone.utc),
                 uptime=time.monotonic() - self._created_at,
-                iteration=self._iteration,
-                healthy=self.health(),
+                iteration=iteration,
+                healthy=healthy,
             )
