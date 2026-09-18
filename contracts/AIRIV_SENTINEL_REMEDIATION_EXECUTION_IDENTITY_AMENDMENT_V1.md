@@ -1,8 +1,8 @@
 # AIRIV Sentinel — Remediation Execution Identity Amendment V1
 
-**Status:** APPROVED ARCHITECTURAL AMENDMENT  
-**Applies to:** Remediation Execution / Commander Orchestration  
-**Architecture Decision:** C — Contract-defined execution identity  
+**Status:** APPROVED ARCHITECTURAL AMENDMENT
+**Applies to:** Remediation Execution / Commander Orchestration
+**Architecture Decision:** C — Contract-defined execution identity
 **Persistence Decision:** D — Durable filesystem-backed Execution Identity Journal
 
 ---

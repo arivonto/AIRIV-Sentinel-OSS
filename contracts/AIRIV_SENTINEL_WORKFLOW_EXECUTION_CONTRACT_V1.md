@@ -1,7 +1,7 @@
 # AIRIV Sentinel — Workflow Execution Contract V1
 
-**Status:** LOCKED  
-**Authority:** AIRIV Sentinel Mission Contract V1  
+**Status:** LOCKED
+**Authority:** AIRIV Sentinel Mission Contract V1
 **Scope:** Workflow execution boundary only
 
 ---

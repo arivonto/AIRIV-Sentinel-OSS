@@ -1,8 +1,8 @@
 # AIRIV Sentinel Roadmap
 
-> **Status:** ACTIVE / CHANGE-CONTROLLED  
-> **Roadmap baseline:** AIRIV Sentinel Project Lock — 2026-09-09  
-> **Canonical repository:** `AIRIV-Sentinel` — private canonical source  
+> **Status:** ACTIVE / CHANGE-CONTROLLED
+> **Roadmap baseline:** AIRIV Sentinel Project Lock — 2026-09-09
+> **Canonical repository:** `AIRIV-Sentinel` — private canonical source
 > **Public distribution:** `AIRIV-Sentinel-OSS` — curated open-source distribution
 
 ## Purpose

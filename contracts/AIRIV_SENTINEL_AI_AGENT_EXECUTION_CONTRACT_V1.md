@@ -1,7 +1,7 @@
 # AIRIV Sentinel — AI Agent Execution Contract V1
 
-**Status:** LOCKED  
-**Authority:** AIRIV Sentinel Mission Contract V1  
+**Status:** LOCKED
+**Authority:** AIRIV Sentinel Mission Contract V1
 **Scope:** AI agent execution boundary only
 
 ---

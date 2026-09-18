@@ -273,4 +273,3 @@ def test_planner_binds_component_id_safely():
     assert "{component_id}" not in action.command
     assert "touch /tmp/should-not-exist" in action.command
     assert action.command.endswith("'#{{pane_dead}}'")
-

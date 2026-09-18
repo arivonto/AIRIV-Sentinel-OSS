@@ -526,7 +526,7 @@ def test_returned_record_continuity_revalidated(
     monkeypatch.setattr(
         SystemdProductionActivationConsumptionStore,
         "consume",
-        
+
 lambda self, **kwargs: _record(
             kwargs["grant"],
             **(
