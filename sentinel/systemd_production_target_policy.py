@@ -171,6 +171,104 @@ def protected_target(unit: str) -> bool:
     return any(unit.startswith(prefix) for prefix in PROTECTED_PREFIXES)
 
 
+@dataclass(frozen=True)
+class SystemdCooldownAssessment:
+    """Pure cooldown assessment for one unit/action pair.
+
+    This primitive answers only: "Given these canonical attempt facts,
+    is this unit/action outside the specified cooldown window?"
+
+    It performs no authorization, no protected-target decision, and no
+    allowlisting. Higher-layer policy must still decide whether the target
+    is permitted for remediation.
+    """
+
+    unit: str
+    action: str
+    cooldown_seconds: float
+    cooldown_satisfied: bool
+    last_attempt_timestamp: float | None
+    relevant_attempt_count: int
+
+
+def assess_systemd_cooldown(
+    *,
+    unit: str,
+    action: str,
+    now: float,
+    attempts: Iterable[SystemdAttemptFact],
+    cooldown_seconds: float,
+) -> SystemdCooldownAssessment:
+    """Pure cooldown assessment for one systemd unit/action pair.
+
+    Reusable by both SystemdProductionTargetPolicy and future SLO authority.
+
+    Preserves exact canonical validation semantics:
+    - SystemdAttemptFact type enforcement
+    - finite/non-negative timestamp enforcement
+    - future timestamp rejection
+    - exact unit/action filtering
+    - boundary comparison (>= cooldown_seconds)
+    """
+    if type(action) is not str:
+        raise TypeError("action must be str")
+
+    if type(now) not in (int, float) or not math.isfinite(now):
+        raise ValueError("now must be finite")
+
+    if now < 0:
+        raise ValueError("now must be non-negative")
+
+    if (
+        type(cooldown_seconds) not in (int, float)
+        or not math.isfinite(cooldown_seconds)
+        or cooldown_seconds <= 0
+    ):
+        raise ValueError("cooldown_seconds must be finite and positive")
+
+    relevant: list[SystemdAttemptFact] = []
+
+    for attempt in attempts:
+        if type(attempt) is not SystemdAttemptFact:
+            raise TypeError(
+                "attempts must contain SystemdAttemptFact"
+            )
+
+        if (
+            type(attempt.timestamp) not in (int, float)
+            or not math.isfinite(attempt.timestamp)
+            or attempt.timestamp < 0
+        ):
+            raise ValueError("attempt timestamp must be finite")
+
+        if attempt.timestamp > now:
+            raise ValueError(
+                "future attempt timestamp is invalid"
+            )
+
+        if attempt.unit == unit and attempt.action == action:
+            relevant.append(attempt)
+
+    last_timestamp = max(
+        (attempt.timestamp for attempt in relevant),
+        default=None,
+    )
+
+    cooldown_satisfied = (
+        last_timestamp is None
+        or now - last_timestamp >= cooldown_seconds
+    )
+
+    return SystemdCooldownAssessment(
+        unit=unit,
+        action=action,
+        cooldown_seconds=cooldown_seconds,
+        cooldown_satisfied=cooldown_satisfied,
+        last_attempt_timestamp=last_timestamp,
+        relevant_attempt_count=len(relevant),
+    )
+
+
 class SystemdProductionTargetPolicy:
     """Pure target-safety assessment for real production services.
 
@@ -290,40 +388,27 @@ class SystemdProductionTargetPolicy:
                 verification=None,
             )
 
-        relevant: list[SystemdAttemptFact] = []
-
-        for attempt in attempts:
-            if type(attempt) is not SystemdAttemptFact:
-                raise TypeError(
-                    "attempts must contain SystemdAttemptFact"
-                )
-
-            if (
-                type(attempt.timestamp) not in (int, float)
-                or not math.isfinite(attempt.timestamp)
-                or attempt.timestamp < 0
-            ):
-                raise ValueError("attempt timestamp must be finite")
-
-            if attempt.timestamp > now:
-                raise ValueError(
-                    "future attempt timestamp is invalid"
-                )
-
-            if attempt.unit == unit and attempt.action == action:
-                relevant.append(attempt)
-
-        last_timestamp = max(
-            (attempt.timestamp for attempt in relevant),
-            default=None,
+        cooldown_result = assess_systemd_cooldown(
+            unit=unit,
+            action=action,
+            now=now,
+            attempts=attempts,
+            cooldown_seconds=rule.cooldown_seconds,
         )
 
-        cooldown_satisfied = (
-            last_timestamp is None
-            or now - last_timestamp >= rule.cooldown_seconds
-        )
+        cooldown_satisfied = cooldown_result.cooldown_satisfied
 
         window_floor = now - rule.retry_window_seconds
+
+        # Reconstruct relevant attempts from primitive for retry window counting.
+        # The primitive already validated and filtered; we filter again here
+        # using the same canonical semantics for the retry window calculation.
+        relevant = [
+            a for a in attempts
+            if type(a) is SystemdAttemptFact
+            and a.unit == unit
+            and a.action == action
+        ]
 
         attempts_in_window = sum(
             1
