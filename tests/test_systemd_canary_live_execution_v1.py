@@ -27,7 +27,7 @@ def setup(tmp_path, monkeypatch):
     target = dataclasses.replace(make_identity(), unit_name=UNIT,
                                  fragment_path="/etc/systemd/system/" + UNIT)
     before = make_snapshot(target=target)
-    after = make_snapshot(target=target, invocation_id="b" * 32)
+    after = make_snapshot(target=target, invocation_id="b" * 32, main_pid=1001)
     snapshots = [before, after]
     calls = []
     def provider():

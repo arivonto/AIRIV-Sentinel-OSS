@@ -438,6 +438,7 @@ class BoundSystemdActionScope:
     expected_post_active_state: str = "active"
 
     require_new_invocation: bool = True
+    require_new_pid: bool = True
 
     def __post_init__(self) -> None:
         if not isinstance(
@@ -885,6 +886,7 @@ class SystemdRestartVerification:
     same_target_identity: bool
     active_after: bool
     new_invocation: bool
+    new_pid: bool
 
     before_target_fingerprint: str
     after_target_fingerprint: str
@@ -922,6 +924,7 @@ class SystemdRestartVerifier:
                 same_target_identity=False,
                 active_after=False,
                 new_invocation=False,
+                new_pid=False,
                 before_target_fingerprint=(
                     before.identity.fingerprint
                 ),
@@ -940,6 +943,7 @@ class SystemdRestartVerifier:
                 same_target_identity=True,
                 active_after=False,
                 new_invocation=False,
+                new_pid=False,
                 before_target_fingerprint=(
                     before.identity.fingerprint
                 ),
@@ -961,6 +965,7 @@ class SystemdRestartVerifier:
                 same_target_identity=True,
                 active_after=False,
                 new_invocation=False,
+                new_pid=False,
                 before_target_fingerprint=(
                     before.identity.fingerprint
                 ),
@@ -990,6 +995,7 @@ class SystemdRestartVerifier:
                 same_target_identity=True,
                 active_after=True,
                 new_invocation=False,
+                new_pid=False,
                 before_target_fingerprint=(
                     before.identity.fingerprint
                 ),
@@ -999,6 +1005,31 @@ class SystemdRestartVerifier:
                 reason="systemd_invocation_not_changed",
             )
 
+        new_pid = (
+            before.main_pid > 0
+            and after.main_pid > 0
+            and after.main_pid != before.main_pid
+        )
+
+        if (
+            scope.require_new_pid
+            and not new_pid
+        ):
+            return SystemdRestartVerification(
+                verified=False,
+                same_target_identity=True,
+                active_after=True,
+                new_invocation=new_invocation,
+                new_pid=False,
+                before_target_fingerprint=(
+                    before.identity.fingerprint
+                ),
+                after_target_fingerprint=(
+                    after.identity.fingerprint
+                ),
+                reason="systemd_pid_not_changed",
+            )
+
         return SystemdRestartVerification(
             verified=True,
             same_target_identity=True,
@@ -1006,6 +1037,7 @@ class SystemdRestartVerifier:
             new_invocation=(
                 new_invocation
             ),
+            new_pid=new_pid,
             before_target_fingerprint=(
                 before.identity.fingerprint
             ),

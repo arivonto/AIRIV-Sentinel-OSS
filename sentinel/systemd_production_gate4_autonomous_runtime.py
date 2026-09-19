@@ -97,6 +97,7 @@ class Gate4InactiveRestartVerifier(SystemdRestartVerifier):
             same_target_identity=True,
             active_after=True,
             new_invocation=True,
+            new_pid=True,
             before_target_fingerprint=before.identity.fingerprint,
             after_target_fingerprint=after.identity.fingerprint,
             reason="verified_inactive_to_active",
