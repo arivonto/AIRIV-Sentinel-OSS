@@ -88,7 +88,7 @@ UNKNOWN is terminal and must not trigger automatic retry.
 Service: airiv-sentinel.service
 
 Canonical entrypoint:
-`/home/arivonto/airiv/airiv-sentinel/venv/bin/python -m sentinel.runtime`
+`./venv/bin/python -m sentinel.runtime`
 
 ## 9. Locked Contracts
 

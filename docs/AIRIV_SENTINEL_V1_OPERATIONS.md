@@ -12,7 +12,7 @@ Sentinel provides continuous observation, controlled execution, independent veri
 Service: `airiv-sentinel.service`
 
 Canonical entrypoint:
-`/home/arivonto/airiv/airiv-sentinel/venv/bin/python -m sentinel.runtime`
+`./venv/bin/python -m sentinel.runtime`
 
 ## 3. Runtime Cycle
 

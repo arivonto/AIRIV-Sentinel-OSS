@@ -1,0 +1,9 @@
+flowchart LR
+    Runtime --> Queue
+    Runtime --> Scheduler
+    Runtime --> Worker
+    Runtime --> ExecutorFactory
+    Runtime --> Verifier
+    Scheduler --> Queue
+    ExecutorFactory --> LocalExecutor
+    ExecutorFactory --> OllamaExecutor

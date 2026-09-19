@@ -1,0 +1,9 @@
+flowchart LR
+    Queue --> Scheduler
+    Scheduler --> Worker
+    Worker --> ExecutorFactory
+    ExecutorFactory --> LocalExecutor
+    ExecutorFactory --> OllamaExecutor
+    LocalExecutor --> Verifier
+    OllamaExecutor --> Verifier
+    Verifier --> QueueUpdated[Queue Updated]

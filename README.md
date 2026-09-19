@@ -2,7 +2,13 @@
 
 > **Clean open-source distribution.** This repository is the curated public source domain. Canonical private Git ancestry, private host evidence, private host-control material, credentials, authorization material, and internal release provenance are intentionally excluded.
 
-A Linux-first Autonomous Multi-AI Engineering Desktop with a deterministic, queue-driven execution core and configurable local and Ollama executor adapters.
+[![Sentinel CI](https://github.com/arivonto/AIRIV-Sentinel-OSS/actions/workflows/ci.yml/badge.svg)](https://github.com/arivonto/AIRIV-Sentinel-OSS/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
+
+A Linux-first autonomous operations Sentinel with deterministic, fail-closed authority, continuous observation, incident lifecycle management, policy-controlled remediation, independent verification, and auditable evidence.
+
+AIRIV Sentinel is a Linux-first Autonomous Multi-AI Engineering Desktop evolved into a continuous operations Sentinel.
 
 ```text
 One Mission.
@@ -12,147 +18,126 @@ Linux First.
 
 Canonical precedence: `Contract > Implementation > Local Preference`.
 
-See the [AIRIV Sentinel Roadmap](AIRIV_SENTINEL_ROADMAP.md) for the repository roadmap and status context.
+## What is AIRIV Sentinel?
 
-## Project Overview
+AIRIV Sentinel is a continuously operating Linux Sentinel that observes system state, preserves incident evidence, manages remediation through explicit policy boundaries, and verifies consequential effects independently. It is designed to operate continuously on a Linux workstation or server without requiring cloud infrastructure.
 
-AIRIV Sentinel is a Python repository for bounded engineering task execution. Its current core loads a YAML queue, selects an executable task, dispatches one task through a configured executor, verifies the result, and persists the updated queue. The repository also contains broader contracts and implementation surfaces under `sentinel/`, but this README describes only the verified queue-driven core.
+## Why AIRIV Sentinel?
 
-## Current Status
+Modern development environments run continuously — builds, tests, AI agents, and services do not stop at 5 PM. Yet most tooling assumes a human is always watching. Sentinel closes that gap without introducing uncontrolled autonomy.
 
-The repository has achieved:
+The project favors local-first operation, deterministic auditable behavior, bounded automation, and fail-closed safety. AI may assist engineering and diagnostics, but repository contracts, policy boundaries, and Commander authority remain the source of operational truth.
 
-- Proof of Life: a CLI can execute one queue cycle and report the result.
-- CI: GitHub Actions runs the configured kernel and integration test suites on Python 3.12.
-- Deterministic Core Runtime: queue loading, scheduling, worker dispatch, executor selection, execution results, verification, and queue persistence are implemented as explicit components.
+See [Why AIRIV Sentinel](docs/WHY_AIRIV_SENTINEL.md) for the full motivation.
 
-This repository does not claim full autonomy.
+## What Works Today
 
-## Core Architecture
+- Deterministic queue-driven task execution with local, Roo, and Ollama adapters
+- Continuous observation and system state normalization
+- Incident lifecycle management with evidence trails
+- Policy-controlled remediation with fail-closed defaults
+- Independent post-execution verification
+- Durable execution identity with replay protection
+- SLO observation and health classification (HEALTHY / STALE / UNHEALTHY / UNKNOWN)
+- CI/CD with GitHub Actions (kernel + integration tests)
+- Curated open-source distribution
+
+## Safety and Intentional Boundaries
+
+AIRIV Sentinel intentionally does **not**:
+
+- Claim full autonomy
+- Invent its own remediation rules
+- Retry indeterminate effects automatically
+- Cross production-effect boundaries without explicit authority
+- Depend on a single AI model or paid cloud API for safety
+
+Autonomous production remediation is **not authorized**. All consequential effects require explicit Commander confirmation.
+
+## Architecture Overview
 
 ```text
-Queue
-  |
-  v
-Scheduler
-  |
-  v
-Worker
-  |
-  v
-Executor Factory
-  |
-  +--> Local Executor
-  |
-  +--> Ollama Executor
-  |
-  v
-Verifier
-  |
-  v
-Queue Updated
+Observation
+  → Investigation
+  → Diagnosis
+  → Commander Intent
+  → Remediation Policy (ALLOW / DENY)
+  → Execution Identity (claim once)
+  → Execution
+  → Independent Verification
+  → Evidence
+  → Incident Lifecycle
 ```
 
-`Runtime` coordinates one cycle. `ExecutorFactory` selects `local`, `roo`, or `ollama` from configuration. The Ollama adapter targets the local `http://localhost:11434` endpoint by default and uses the configurable `qwen3:4b` model default.
+See [Architecture](docs/AIRIV_SENTINEL_V1_ARCHITECTURE.md) for details.
 
-## Current Features
+![Runtime Flow](docs/diagrams/runtime-flow.svg)
 
-- Canonical YAML queue loading with mission and task validation.
-- Explicit task identifiers, types, dependencies, status, success conditions, allowed files, and evidence fields.
-- Deterministic task selection through the scheduler.
-- Single-task worker dispatch and result collection.
-- Executor selection for local, Roo, and Ollama adapters.
-- Local Ollama HTTP generation requests with configurable endpoint and model.
-- Structured execution and verification results.
-- Queue status persistence after completion or failure.
-- One-cycle command-line execution through `runtime_cli.py`.
-- Focused unit and integration tests.
-- GitHub Actions kernel and integration test verification with fail-fast pytest execution.
-
-## Repository Structure
-
-- `contracts/`: canonical project contracts and authority boundaries.
-- `constitution/`: active constitution and policy documents.
-- `sentinel/`: the broader Sentinel implementation packages.
-- `tests/`: unit, integration, contract, and architecture tests.
-- `.github/workflows/`: GitHub Actions workflows.
-- `queue.py`, `scheduler.py`, `worker.py`, `executor.py`, `executor_factory.py`, `local_executor.py`, `ollama_executor.py`, and `verifier.py`: deterministic core components.
-- `demo_queue.yaml` and `queue_schema.yaml`: queue example and canonical schema.
-- `config/`: repository configuration examples and identity mappings.
-- `docs/`: architecture and operational documentation.
-
-## Quick Start
-
-Create or activate a Python virtual environment, then install development dependencies:
+## Installation
 
 ```bash
+git clone https://github.com/arivonto/AIRIV-Sentinel-OSS.git
+cd AIRIV-Sentinel-OSS
 python3 -m venv venv
 ./venv/bin/python -m pip install -r requirements-dev.txt
 ```
 
-Run one runtime cycle against the demo queue:
+Requires Python >= 3.12 and Linux with systemd.
+
+## Quick Start
+
+Run one runtime cycle:
 
 ```bash
 ./venv/bin/python runtime_cli.py demo_queue.yaml
 ```
 
-The CLI prints a concise status line and returns `0` for a successful cycle or `1` for a failed or empty cycle.
+Expected: status line and exit code `0` (success) or `1` (failure).
 
-## Testing
-
-Run the focused kernel and integration tests locally:
+Run the test suite:
 
 ```bash
-PYTHONPATH=. ./venv/bin/pytest -q -x \
-  tests/test_queue_loader_canonical_v1.py \
-  tests/test_worker_v1.py \
-  tests/test_verifier_v1.py \
-  tests/test_executor_v1.py \
-  tests/test_runtime_cli_v1.py \
-  tests/test_local_executor_v1.py \
-  tests/test_handler_registry_v1.py \
-  tests/test_echo_handler_v1.py \
-  tests/test_safety_gate_v1.py \
-  tests/test_roo_executor_v1.py \
-  tests/test_ollama_executor_v1.py \
-  tests/test_executor_factory_v1.py \
-  tests/test_runtime_executor_factory_v1.py
-
-PYTHONPATH=. ./venv/bin/pytest -q -x tests/test_*integration*.py
+PYTHONPATH=. ./venv/bin/pytest -q -x tests/
 ```
 
-## CI
+For detailed usage, see the [User Guide](docs/USER_GUIDE.md).
 
-The `Sentinel Kernel CI` workflow runs on pushes to `main` and pull requests. It installs the development dependencies with Python 3.12, runs the configured kernel tests, and then runs integration tests. Each pytest command uses `-x`, and any nonzero test result fails the workflow and therefore blocks a pull request from passing its CI check.
+## Current Status
 
-## Roadmap
+| Capability | Status |
+|---|---|
+| Deterministic task execution | Available |
+| Incident lifecycle management | Available |
+| Remediation policy engine | Available |
+| Independent verification | Available |
+| SLO observation & classification | Available |
+| SLO enforcement (production integration) | In development |
+| Autonomous production remediation | Not authorized |
 
-### Implemented
-
-- Canonical queue schema and loader.
-- Deterministic scheduler, worker, verifier, and runtime cycle.
-- Configurable local, Roo, and Ollama executor adapters.
-- Executor factory wiring in Runtime.
-- Runtime CLI and focused CI coverage.
-
-### In Progress
-
-- Aligning legacy tests and callers with the canonical queue schema.
-- Expanding integration coverage for provider-configured execution paths.
-
-### Planned
-
-- Additional bounded task handlers and explicitly tested configuration flows.
-- Further documentation of the canonical contracts and operational boundaries.
+See the [AIRIV Sentinel Roadmap](AIRIV_SENTINEL_ROADMAP.md) for details.
 
 ## Documentation
 
-- [ARCHITECTURE.md](docs/AIRIV_SENTINEL_V1_ARCHITECTURE.md)
-- [QUICKSTART.md](README.md#quick-start)
-- [SECURITY.md](SECURITY.md)
-- [CONTRIBUTING.md](CONTRIBUTING.md)
-- [CODE_OF_CONDUCT.md](https://github.com/arivonto/AIRIV-Sentinel-OSS/blob/main/CODE_OF_CONDUCT.md)
+- [Architecture](docs/AIRIV_SENTINEL_V1_ARCHITECTURE.md)
+- [Why AIRIV Sentinel](docs/WHY_AIRIV_SENTINEL.md)
+- [User Guide](docs/USER_GUIDE.md)
+- [Roadmap](AIRIV_SENTINEL_ROADMAP.md)
+- [Security](SECURITY.md)
+- [Contributing](CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
+
+## Contributing
+
+Contributions should preserve canonical contracts, safety boundaries, and fail-closed behavior. See [Contributing](CONTRIBUTING.md) for guidelines.
+
+## Security
+
+AIRIV Sentinel can perform consequential host operations when explicitly configured and authorized. See [Security](SECURITY.md) for vulnerability reporting and security invariants.
+
+## Releases
+
+AIRIV Sentinel is currently in pre-release development. Source is available from this repository. Formal GitHub Releases will be published when release artifacts are ready.
 
 ## License
 
-AIRIV Sentinel is distributed under the [Apache License 2.0](LICENSE).
+Distributed under the [Apache License 2.0](LICENSE).
