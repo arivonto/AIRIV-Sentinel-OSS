@@ -6,6 +6,8 @@
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 
+![AIRIV Sentinel — deterministic operations for a more reliable tomorrow](docs/images/airiv-sentinel-hero.png)
+
 A Linux-first autonomous operations Sentinel with deterministic, fail-closed authority, continuous observation, incident lifecycle management, policy-controlled remediation, independent verification, and auditable evidence.
 
 AIRIV Sentinel is a Linux-first Autonomous Multi-AI Engineering Desktop evolved into a continuous operations Sentinel.
